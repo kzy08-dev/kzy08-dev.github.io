@@ -1454,38 +1454,42 @@ tr:hover td {
 }
 
 /* MUSIC SELECTOR */
+/* PLAYLIST CONTAINER */
 .playlist-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    background: var(--bg-card);
-    border: 1px solid var(--border-light);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: var(--shadow-soft);
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
 .song-card {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-card);
     border: 1px solid var(--border-light);
-    border-radius: 12px;
-    padding: 15px 20px;
+    border-radius: 15px;
+    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
-    transition: all 0.2s;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
 }
 
 .song-card:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(13, 27, 42, 0.85);
+    border-color: var(--primary-main);
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+}
+
+.song-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .song-info strong {
     color: var(--text-light);
+    font-size: 1rem;
 }
 
 .song-controls {
@@ -1493,54 +1497,57 @@ tr:hover td {
     gap: 10px;
 }
 
-.playMusic-btn {
-    background: rgba(0, 230, 118, 0.15);
-    color: var(--accent-emerald);
-    border: 1px solid rgba(0, 230, 118, 0.3);
-    padding: 8px 16px;
+.playMusic-btn,
+.deleteMusic-btn {
+    background: rgba(157, 78, 221, 0.1);
+    color: var(--accent-purple);
+    border: 1px solid rgba(157, 78, 221, 0.2);
+    padding: 8px 14px;
     border-radius: 8px;
     cursor: pointer;
-    font-family: inherit;
+    font-size: 0.85rem;
     font-weight: 600;
-    transition: all 0.2s;
+    font-family: inherit;
+    transition: all 0.3s ease;
 }
 
 .playMusic-btn:hover {
-    background: var(--accent-emerald);
-    color: var(--bg-dark);
+    background: var(--accent-purple);
+    color: var(--text-light);
+    box-shadow: 0 0 12px rgba(157, 78, 221, 0.3);
+    transform: scale(1.05);
 }
 
 .deleteMusic-btn {
-    background: rgba(244, 63, 94, 0.15);
+    background: rgba(244, 63, 94, 0.1);
     color: var(--accent-pink);
-    border: 1px solid rgba(244, 63, 94, 0.3);
-    padding: 8px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
+    border-color: rgba(244, 63, 94, 0.2);
 }
 
 .deleteMusic-btn:hover {
     background: var(--accent-pink);
     color: var(--text-light);
+    box-shadow: 0 0 12px rgba(244, 63, 94, 0.3);
+    transform: scale(1.05);
 }
 
 .primary-btn {
-    background: linear-gradient(135deg, var(--accent-purple), var(--primary-hover));
-    color: var(--text-light);
+    background: linear-gradient(135deg, var(--primary-main), var(--primary-hover));
+    color: var(--bg-dark);
+    font-weight: 700;
+    font-family: inherit;
     border: none;
     padding: 12px 24px;
     border-radius: 10px;
-    font-weight: 700;
     cursor: pointer;
-    font-family: inherit;
+    font-size: 0.95rem;
     transition: all 0.3s;
-    align-self: center;
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
 }
 
 .primary-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3);
+    box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35);
 }
 
 /* RESPONSIVE DESIGN (MOBILE) */
