@@ -155,7 +155,7 @@ function updateEquipmentToggleButtons() {
 
     if (clothingBtn) {
         clothingBtn.classList.toggle("equipped", !!equippedItems.Clothing);
-        clothingBtn.textContent = equippedItems.Clothing ? "👕 Take Off Clothes" : "👕 Wear Clothing";
+        clothingBtn.textContent = equippedItems.Clothing ? "👕 Remove Accessories" : "👕 Wear Clothing";
     }
     if (toyBtn) {
         toyBtn.classList.toggle("equipped", !!equippedItems.Toy);
