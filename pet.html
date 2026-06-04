@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feral Gremlin - Greet Your Pet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar Injected Here -->
+    <div id="sidebar-container"></div>
+    
+    <main class="main-content">
+        <!-- Header Injected Here -->
+        <div id="header-container"></div>
+        
+        <div class="pet-page">
+            <!-- LEFT SIDE (PET PRESENTATION) -->
+            <section class="pet-section">
+                <div class="greeting-box">
+                    <div>
+                        <h2>I'm <input type="text" id="petName" placeholder="Buddy" maxlength="15">!</h2>
+                        <p id="petGreeting">Ready to tackle your tasks today?</p>
+                    </div>
+                </div>
+
+                <!-- Pet Selector -->
+                <div class="pet-selector-container">
+                    <h3>Choose Your Active Pet</h3>
+                    <div class="pet-options">
+                        <button class="pet-opt-btn active" data-pet="puppy" id="btnPuppy">🐶 Puppy</button>
+                        <button class="pet-opt-btn" data-pet="turtle" id="btnTurtle">🐢 Turtle</button>
+                        <button class="pet-opt-btn" data-pet="dragon" id="btnDragon">🐲 Cute Dragon</button>
+                    </div>
+                </div>
+
+                <!-- Pet Display Area -->
+                <div class="pet-display-area">
+                    <div class="pet-wrapper">
+                        <img src="assets/images/puppy.png" alt="My Pet" id="petImage">
+
+                        <!-- Dynamic Emoji Overlays -->
+                        <div id="clothingOverlay" class="overlay overlay-clothing"></div>
+                        <div id="toyOverlay" class="overlay overlay-toy"></div>
+                        <div id="foodOverlay" class="overlay overlay-food"></div>
+                    </div>
+
+                    <!-- Emotion/Happiness Meter -->
+                    <div class="emotion-container">
+                        <div class="emotion-label">Happiness Meter: <span id="emotionNumber">50</span>%</div>
+                        <div class="emotion-meter">
+                            <div id="emotionFill"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customization Equipment Toggles -->
+                <div class="equipment-section">
+                    <button class="equipment-btn" id="clothingEquipBtn">👕 Wear Clothing</button>
+                    <button class="equipment-btn" id="toyEquipBtn">🧸 Play with Toy</button>
+                    <button class="equipment-btn" id="foodEquipBtn">🍖 Eat Food</button>
+                </div>
+            </section>
+
+            <!-- RIGHT SIDE (STORE & ACCOUNT BALANCE) -->
+            <section class="store-section">
+                <div class="balance-box">
+                    <h2>Available Balance</h2>
+                    <div id="balanceDisplay">$10.00</div>
+                </div>
+
+                <h2>Rewards Shop</h2>
+                <div id="storeContainer" class="store-container"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Firebase SDK & Helper -->
+    <script type="module" src="js/firebase-db.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/pet.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feral Gremlin - Task Inputter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar Injected Here -->
+    <div id="sidebar-container"></div>
+    
+    <main class="main-content">
+        <!-- Header Injected Here -->
+        <div id="header-container"></div>
+        
+        <section class="task-page">
+            <div class="task-controls">
+                <div class="date-section">
+                    <label for="taskDate">Select Calendar Date</label>
+                    <input type="date" id="taskDate">
+                </div>
+
+                <button id="openTaskModal" class="add-task-btn">Add Task</button>
+            </div>
+
+            <div class="priority-layout">
+                <div class="priority-box" data-priority="high">
+                    <h2>High Priority</h2>
+                    <div id="highTasks" class="task-dropzone"></div>
+                </div>
+
+                <div class="priority-box" data-priority="medium">
+                    <h2>Medium Priority</h2>
+                    <div id="mediumTasks" class="task-dropzone"></div>
+                </div>
+
+                <div class="priority-box" data-priority="low">
+                    <h2>Low Priority</h2>
+                    <div id="lowTasks" class="task-dropzone"></div>
+                </div>
+            </div>
+
+            <div class="generate-container">
+                <button class="generate-btn" id="generateSchedule">Generate Schedule</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- TASK MODAL -->
+    <div id="taskModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Add New Task</h2>
+
+            <label for="taskName">Task Name</label>
+            <input type="text" id="taskName" placeholder="e.g. Wash the dishes" maxlength="100">
+          
+            <label for="taskDuration">Duration (Minutes)</label>
+            <input type="number" id="taskDuration" placeholder="30" min="5" step="5">
+
+            <div class="music-choice">
+                <h3>Ambient Soundtrack</h3>
+                <label>
+                    <input type="radio" name="music" value="default" checked>
+                    Default Focus Track
+                </label>
+                <label>
+                    <input type="radio" name="music" value="playlist">
+                    Use My Playlist
+                </label>
+            </div>
+
+            <div class="modal-buttons">
+                <button id="finishTask" class="add-task-btn">Add Task</button>
+                <button id="cancelTask" class="close-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK & Helper -->
+    <script type="module" src="js/firebase-db.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/task-inputter.js"></script>
+</body>
+</html>

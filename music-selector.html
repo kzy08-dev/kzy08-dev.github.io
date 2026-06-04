@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feral Gremlin - Music Selector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar Injected Here -->
+    <div id="sidebar-container"></div>
+    
+    <main class="main-content">
+        <!-- Header Injected Here -->
+        <div id="header-container"></div>
+
+        <h2 style="text-align: center; margin: 20px 0; font-weight: 800;" class="glow-text">My Focus Soundscapes</h2>
+        <div class="playlist-container">
+            <div id="playlist"></div>
+            <button id="addSongBtn" class="primary-btn">+ Add Focus Sound</button>
+        </div>
+    </main>
+
+    <!-- Song Modal -->
+    <div id="songModal" class="modal hidden">
+        <div class="modalMusic-content">
+            <h2>Add Custom Sound</h2>
+
+            <label for="songName">Sound Name</label>
+            <input type="text" id="songName" placeholder="e.g. Ambient Rain">
+
+            <label for="youtubeLink">YouTube Audio Link (Optional)</label>
+            <input type="text" id="youtubeLink" placeholder="https://youtube.com/..." class="music-modal">
+
+            <div class="divider">OR</div>
+
+            <label for="audioFile">Upload Local MP3 File</label>
+            <input type="file" id="audioFile" accept="audio/*" class="music-modal">
+
+            <div class="modalMusic-buttons">
+                <button id="saveSong">Save Sound</button>
+                <button id="cancelSong" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK & Helper -->
+    <script type="module" src="js/firebase-db.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/music.js"></script>
+</body>
+</html>

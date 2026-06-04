@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feral Gremlin - Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Sidebar Injected Here -->
+    <div id="sidebar-container"></div>
+    
+    <main class="main-content">
+        <!-- Header Injected Here -->
+        <div id="header-container"></div>
+
+        <!-- Calendar Page -->
+        <section class="calendar-page">
+            <div class="calendar-layout">
+                <!-- Calendar -->
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button id="prevMonth" class="month-btn">◀</button>
+                        <h2 id="monthYear"></h2>
+                        <button id="nextMonth" class="month-btn">▶</button>
+                    </div>
+
+                    <div class="weekday-row">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div id="calendarGrid" class="calendar-grid"></div>
+                </div>
+
+                <!-- Right Side Panel -->
+                <div class="calendar-side-panel">
+                    <div class="stat-card">
+                        <h3>My Balance</h3>
+                        <div id="balanceDisplay" class="stat-value">$0.00</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Pet Happiness</h3>
+                        <div class="emotion-container" style="width: 100%;">
+                            <div class="emotion-meter">
+                                <div id="emotionFill"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="task-inputter.html" class="edit-schedule-btn">
+                        Edit Schedule
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Day Schedule Modal -->
+    <div id="scheduleModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="selectedDateHeading"></h2>
+
+            <div class="schedule-table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Tasks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody"></tbody>
+                </table>
+            </div>
+
+            <button id="closeModal" class="close-btn">Close To-Do List</button>
+        </div>
+    </div>
+
+    <!-- Reward Toast -->
+    <div id="rewardToast" class="reward-toast"></div>
+
+    <!-- Firebase SDK & Helper -->
+    <script type="module" src="js/firebase-db.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/calendar.js"></script>
+</body>
+</html>

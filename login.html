@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feral Gremlin - Secure Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="glow-text">Feral Gremlin</h1>
+                <p id="authSubtitle">Log in to sync your rewards and schedule</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button id="tabLogin" class="auth-tab active">Sign In</button>
+                <button id="tabRegister" class="auth-tab">Register</button>
+            </div>
+            
+            <form id="authForm" class="auth-form">
+                <div class="form-group id-username-group hidden" id="usernameGroup">
+                    <label for="regUsername">Pet Owner Name</label>
+                    <input type="text" id="regUsername" placeholder="Enter your name" autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="authEmail">Email Address</label>
+                    <input type="email" id="authEmail" required placeholder="name@domain.com" autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="authPassword">Password</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+                
+                <div id="authError" class="auth-error-msg hidden"></div>
+                
+                <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Sign In</button>
+            </form>
+            
+            <div class="demo-banner" id="demoBanner">
+                <span class="demo-tag">DEMO MODE ACTIVE</span>
+                <p>Firebase credentials not configured. App is running locally. Enter any credentials to log in!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Firebase module -->
+    <script type="module" src="js/firebase-db.js"></script>
+    <script type="module">
+        document.addEventListener("DOMContentLoaded", () => {
+            const tabLogin = document.getElementById("tabLogin");
+            const tabRegister = document.getElementById("tabRegister");
+            const usernameGroup = document.getElementById("usernameGroup");
+            const authForm = document.getElementById("authForm");
+            const authSubmitBtn = document.getElementById("authSubmitBtn");
+            const authSubtitle = document.getElementById("authSubtitle");
+            const authError = document.getElementById("authError");
+            const demoBanner = document.getElementById("demoBanner");
+            
+            let isRegisterMode = false;
+
+            // Check if firebase helper is loaded and if it's configured
+            const checkFirebase = setInterval(() => {
+                if (window.firebaseHelper) {
+                    clearInterval(checkFirebase);
+                    if (window.firebaseHelper.isConfigured) {
+                        demoBanner.classList.add("hidden");
+                    } else {
+                        demoBanner.classList.remove("hidden");
+                    }
+                }
+            }, 100);
+
+            // Toggle form mode
+            tabLogin.addEventListener("click", () => {
+                isRegisterMode = false;
+                tabLogin.classList.add("active");
+                tabRegister.classList.remove("active");
+                usernameGroup.classList.add("hidden");
+                document.getElementById("regUsername").removeAttribute("required");
+                authSubmitBtn.textContent = "Sign In";
+                authSubtitle.textContent = "Log in to sync your rewards and schedule";
+                authError.classList.add("hidden");
+            });
+
+            tabRegister.addEventListener("click", () => {
+                isRegisterMode = true;
+                tabRegister.classList.add("active");
+                tabLogin.classList.remove("active");
+                usernameGroup.classList.remove("hidden");
+                document.getElementById("regUsername").setAttribute("required", "true");
+                authSubmitBtn.textContent = "Create Account";
+                authSubtitle.textContent = "Join and adopt your Puppy, Turtle, or Dragon";
+                authError.classList.add("hidden");
+            });
+
+            // Form Submit
+            authForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                authError.classList.add("hidden");
+                authSubmitBtn.disabled = true;
+                authSubmitBtn.textContent = isRegisterMode ? "Registering..." : "Signing In...";
+                
+                const email = document.getElementById("authEmail").value.trim();
+                const password = document.getElementById("authPassword").value;
+                const username = document.getElementById("regUsername").value.trim();
+                
+                let result;
+                if (isRegisterMode) {
+                    result = await window.firebaseHelper.signUp(email, password, username);
+                } else {
+                    result = await window.firebaseHelper.login(email, password);
+                }
+                
+                if (result.success) {
+                    // Redirect to home/calendar
+                    window.location.href = "./index.html";
+                } else {
+                    authError.textContent = result.error;
+                    authError.classList.remove("hidden");
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.textContent = isRegisterMode ? "Create Account" : "Sign In";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
