@@ -599,6 +599,165 @@ body {
     box-shadow: 0 6px 20px rgba(0, 242, 254, 0.25);
 }
 
+/* Backdrop wrapper without the dark/shadowed background effect */
+.modalSchedule-backdrop {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Isolated Modal Content Panel utilizing your unique namespace */
+.modalSchedule-content {
+    background: var(--bg-dark);
+    border: 1px solid var(--bg-navy);
+    box-shadow: none; 
+    width: 100%;
+    max-width: 650px;
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modalSchedule-content h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-light); 
+    margin: 0;
+}
+
+/* Structural Layout Form Elements scoped to schedule namespace */
+.formSchedule-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.timeRangeSchedule-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.modalSchedule-content label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-light); 
+}
+
+.modalSchedule-content .sectionSchedule-label {
+    color: var(--text-dim); 
+    margin-bottom: 4px;
+}
+
+/* Scoped text, Date, Time, and Select inputs */
+.modalTaskSchedule-Input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-navy);
+    border: 1px solid var(--bg-glass);
+    border-radius: 10px;
+    color: var(--text-light);
+    font: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modalTaskSchedule-Input:focus {
+    outline: none;
+    border-color: var(--text-light);
+    box-shadow: 0 0 0 3px rgba(245, 246, 250, 0.1);
+}
+
+/* Custom Dropdown Arrow styled uniquely for schedule inputs */
+select.modalTaskSchedule-Input {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='10' height='6' fill='%23f5f6fa'><path d='M0 0l5 6 5-6z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+}
+
+/* Custom inline Radios */
+.radioSchedule-group {
+    display: flex;
+    gap: 24px;
+}
+
+.radioSchedule-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+/* Custom Day Selection Badges */
+.weekdaySchedule-picker {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.daySchedule-btn input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.daySchedule-btn span {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 38px;
+    text-align: center;
+    border: 1px solid var(--bg-glass);
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--text-light);
+    background: var(--bg-navy);
+    transition: all 0.2s ease;
+}
+
+.daySchedule-btn input:checked + span {
+    background: var(--text-light);
+    color: var(--text-dark); 
+    border-color: var(--text-light);
+}
+
+/* Action Button */
+.btnSchedule-finish {
+    background: var(--text-light);
+    color: var(--text-dark);
+    border: none;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: opacity 0.2s ease;
+}
+
+.btnSchedule-finish:hover {
+    opacity: 0.9;
+}
+
 /* DAY SCHEDULE TABLE & MODAL */
 .hidden {
     display: none !important;
