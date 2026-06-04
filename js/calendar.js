@@ -124,8 +124,10 @@ function renderCalendar() {
 /* OPEN MODAL DAY SCHEDULE */
 function openDaySchedule(day) {
     const dateKey = getSelectedDateKey(day);
+    const formattedDate = new Date(dateKey).toLocaleDateString("en-US");
+
     document.getElementById("scheduleModal").classList.remove("hidden");
-    document.getElementById("selectedDateHeading").textContent = dateKey;
+    document.getElementById("selectedDateHeading").textContent = formattedDate;
 
     const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
     const daySchedule = schedules[dateKey]?.tasks || [];
