@@ -84,6 +84,76 @@
         </div>
     </div>
 
+    <div class="modalSchedule-backdrop">
+      <div class="modalSchedule-content">
+        <h2>Set Unavailability</h2>
+        
+        <form id="unavailabilitySchedule-Form" onsubmit="event.preventDefault();">
+          <!-- Step 1: Selection Type -->
+          <div class="formSchedule-group">
+            <label class="sectionSchedule-label">Select Unavailability Type</label>
+            <div class="radioSchedule-group">
+              <label class="radioSchedule-label">
+                <input type="radio" name="unavailabilitySchedule-Type" value="specific" checked>
+                <span>Specific Date</span>
+              </label>
+              <label class="radioSchedule-label">
+                <input type="radio" name="unavailabilitySchedule-Type" value="recurring">
+                <span>Recurring Habit</span>
+              </label>
+            </div>
+          </div>
+    
+          <!-- Step 2A: Specific Date Fields -->
+          <div id="specificDateSchedule-Section" class="conditionalSchedule-section">
+            <div class="formSchedule-group">
+              <label for="specificDateSchedule-Input">Date</label>
+              <input type="date" id="specificDateSchedule-Input" class="modalTaskSchedule-Input">
+            </div>
+          </div>
+    
+          <!-- Step 2B: Recurring Habit Fields -->
+          <div id="recurringSchedule-Section" class="conditionalSchedule-section" style="display: none;">
+            <div class="formSchedule-group">
+              <label for="frequencySchedule-Select">Frequency</label>
+              <select id="frequencySchedule-Select" class="modalTaskSchedule-Input">
+                <option value="weekly">Weekly</option>
+                <option value="bi-weekly">Bi-weekly</option>
+                <option value="tri-weekly">Tri-weekly</option>
+              </select>
+            </div>
+            
+            <div class="formSchedule-group">
+              <label class="sectionSchedule-label">Repeat Days</label>
+              <div class="weekdaySchedule-picker">
+                <label class="daySchedule-btn"><input type="checkbox" value="M"><span>M</span></label>
+                <label class="daySchedule-btn"><input type="checkbox" value="T"><span>T</span></label>
+                <label class="daySchedule-btn"><input type="checkbox" value="W"><span>W</span></label>
+                <label class="daySchedule-btn"><input type="checkbox" value="TH"><span>Th</span></label>
+                <label class="daySchedule-btn"><input type="checkbox" value="F"><span>F</span></label>
+                <label class="daySchedule-btn"><input type="checkbox" value="SA"><span>Sa</span></label>
+                <label class="daySchedule-btn"><input type="checkbox" value="SU"><span>Su</span></label>
+              </div>
+            </div>
+          </div>
+    
+          <!-- Step 3: Shared Time Period Fields -->
+          <div class="timeRangeSchedule-grid">
+            <div class="formSchedule-group">
+              <label for="startTimeSchedule-Input">Start Time</label>
+              <input type="time" id="startTimeSchedule-Input" class="modalTaskSchedule-Input">
+            </div>
+            <div class="formSchedule-group">
+              <label for="endTimeSchedule-Input">End Time</label>
+              <input type="time" id="endTimeSchedule-Input" class="modalTaskSchedule-Input">
+            </div>
+          </div>
+    
+          <!-- Step 4: Finish Button -->
+          <button type="submit" class="btnSchedule-finish">Finish</button>
+        </form>
+      </div>
+    </div>
     <!-- Reward Toast -->
     <div id="rewardToast" class="reward-toast"></div>
 
