@@ -1,12 +1,11 @@
-/*
-====================================
-CALENDAR PAGE
-====================================
-*/
+/* Calendar Page */
 
 let currentDate = new Date();
 let balance = Number(localStorage.getItem("fgBalance")) || 10;
 let emotionLevel = Number(localStorage.getItem("fgEmotionLevel")) || 50;
+
+let currentAudio = null;
+let currentPlayingId = null;
 
 const rewardMessages = [
     "Yay, you did it! You earned",
@@ -14,6 +13,12 @@ const rewardMessages = [
     "Your pet is proud! You earned",
     "Happiness meter upgraded! You earned",
     "Spectacular job! You earned"
+];
+
+const audioFiles = [
+    "../assets/audio/AudioCoffeeBand - Upbeat Life.mp3",
+    "../assets/audio/Heavenless - Uplifting Summer Pop.mp3",
+    "../assets/audio/Ketsa - Vibrant Life.mp3"
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -253,7 +258,46 @@ function attachTaskButtons() {
     document.querySelectorAll(".play-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
-            alert("✨ Playing focus playlist. Navigate to the Music Selector page to manage your tracks!");
+            const musicType = getTaskMusicType(id);
+    
+            // Scenario A: Custom playlist (Not implemented yet)
+            if (musicType !== "default") {
+                alert("Playing from your playlist. To be implemented later.");
+                return; 
+            }
+    
+            // Scenario B: Default track selection
+            // Determine which track to play based on the task's ID index
+            const trackIndex = id % audioFiles.length;
+            const selectedTrackSrc = audioFiles[trackIndex];
+    
+            // 1. If clicking the SAME button that is already active -> Toggle Play/Pause
+            if (currentPlayingId === id && currentAudio) {
+                if (currentAudio.paused) {
+                    currentAudio.play();
+                } else {
+                    currentAudio.pause();
+                }
+                return;
+            }
+    
+            // 2. If a DIFFERENT button was clicked while audio was playing -> Stop old audio
+            if (currentAudio) {
+                currentAudio.pause();
+                // Reset previous button's text to "Play" if needed
+                const prevBtn = document.querySelector(`.play-btn[data-id="${currentPlayingId}"]`);
+            }
+    
+            // 3. Setup and play the new audio track
+            currentAudio = new Audio(selectedTrackSrc);
+            currentPlayingId = id;
+            currentAudio.play();
+    
+            // Reset button UI automatically when the track finishes playing naturally
+            currentAudio.addEventListener("ended", () => {
+                currentAudio = null;
+                currentPlayingId = null;
+            });
         });
     });
 }
@@ -283,6 +327,20 @@ function getTaskPriority(id) {
         }
     }
     return "medium";
+}
+
+function getTaskMusicType(id) {
+    const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
+    for (let date in schedules) {
+        let tasks = schedules[date].tasks;
+        for (let t of tasks) {
+            if (t.id === id) {
+                // Return the configured music type or fallback to "default"
+                return t.musicType || "default";
+            }
+        }
+    }
+    return "default";
 }
 
 /* COINS & REWARDS */
