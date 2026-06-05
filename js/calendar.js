@@ -442,3 +442,73 @@ function spawnConfetti(x, y) {
 function closeModal() {
     document.getElementById("scheduleModal").classList.add("hidden");
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Select the necessary DOM elements
+  const noteTakingBtn = document.getElementById('notetaking');
+  const modalOverlay = document.querySelector('.modalNotes-overlay');
+  const modalContainer = document.querySelector('.modalNotes-container');
+  const textarea = document.querySelector('.modalNotes-input');
+  const cancelBtn = document.querySelector('.modalNotes-cancel');
+  const finishBtn = document.querySelector('.modalNotes-finish');
+
+  // Key used to store and retrieve data from localStorage
+  const STORAGE_KEY = 'taskNotesData';
+
+  // 2. Renamed function to open the notes modal
+  function openNotesModal() {
+    // Load existing notes from localStorage if they exist
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        textarea.value = parsedData.notes || '';
+      } catch (e) {
+        console.error("Error parsing JSON from localStorage", e);
+      }
+    } else {
+      textarea.value = ''; // Clear if no saved data exists
+    }
+
+    // Display the modal using flex layout
+    modalOverlay.style.display = 'flex';
+    modalContainer.style.display = 'flex';
+  }
+
+  // 3. Renamed function to close the notes modal without saving
+  function closeNotesModal() {
+    modalOverlay.style.display = 'none';
+    modalContainer.style.display = 'none';
+  }
+
+  // 4. Renamed function to save notes text to JSON and close
+  function saveAndCloseNotesModal() {
+    const notesPayload = {
+      notes: textarea.value,
+      updatedAt: new Date().toISOString()
+    };
+
+    // Save the object as a JSON string
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notesPayload));
+    
+    // Close the modal using the newly renamed function
+    closeNotesModal();
+  }
+
+  // 5. Event Listeners utilizing the new function names
+  if (noteTakingBtn) {
+    noteTakingBtn.addEventListener('click', openNotesModal);
+  } else {
+    console.warn("Element with ID 'notetaking' was not found on the page.");
+  }
+
+  cancelBtn.addEventListener('click', closeNotesModal);
+  finishBtn.addEventListener('click', saveAndCloseNotesModal);
+
+  // Close modal if user clicks on the background overlay itself
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) {
+      closeNotesModal();
+    }
+  });
+});
