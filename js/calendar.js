@@ -16,7 +16,7 @@ const rewardMessages = [
 ];
 
 const audioFiles = [
-    "../assets/audio/AudioCoffeeBand - Upbeat Life.mp3",
+    "../assets/audio/AudioCoffee Band - Upbeat Life.mp3",
     "../assets/audio/Heavenless - Uplifting Summer Pop.mp3",
     "../assets/audio/Ketsa - Vibrant Life.mp3"
 ];
