@@ -782,7 +782,7 @@ select.modalTaskSchedule-Input {
   border: 1px solid var(--border-glow);
   border-radius: 16px;
   box-shadow: var(--shadow-soft), var(--shadow-neon);
-  display: flex;
+  display: none;
   flex-direction: column;
   overflow: hidden;
   animation: modalNotesFadeIn 0.3s ease-out;
