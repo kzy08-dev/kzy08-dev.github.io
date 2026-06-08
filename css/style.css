@@ -1042,7 +1042,7 @@ tr:hover td {
     gap: 10px;
 }
 
-.play-btn, .complete-btn {
+.play-btn, .complete-btn, .delete-btn {
     width: 32px;
     height: 32px;
     border: none;
@@ -1078,6 +1078,19 @@ tr:hover td {
     background: var(--accent-emerald);
     color: var(--bg-dark);
     box-shadow: 0 0 10px rgba(0, 230, 118, 0.4);
+    transform: scale(1.1);
+}
+
+.delete-btn {
+    background: rgba(244, 63, 94, 0.15);
+    color: var(--accent-pink);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.delete-btn:hover {
+    background: var(--accent-pink);
+    color: var(--text-light);
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.4);
     transform: scale(1.1);
 }
 

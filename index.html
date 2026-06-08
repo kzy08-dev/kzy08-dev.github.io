@@ -179,6 +179,26 @@
           <button class="modalNotes-btn modalNotes-finish">Finish</button>
         </div>
       </div>
+    <!-- Task Deletion Prompt Modal -->
+    <div id="deletePromptModal" class="modalNotes-overlay">
+      <div class="modalNotes-container" style="max-width: 400px; text-align: center;">
+        <div class="modalNotes-header">
+          <h2 id="deletePromptTitle">Delete Task?</h2>
+        </div>
+        <div class="modalNotes-body">
+          <p id="deletePromptMessage" style="color: var(--text-dim); margin-bottom: 20px;">Are you sure you want to delete this task?</p>
+          <div id="deleteRecurringOptions" style="display: none; flex-direction: column; gap: 10px;">
+            <button id="deleteBtnAll" class="modalNotes-btn" style="border-color: var(--accent-pink); color: var(--accent-pink);">Delete ALL recurring tasks</button>
+            <button id="deleteBtnOne" class="modalNotes-btn">Only this one</button>
+          </div>
+          <div id="deleteSingleOption" style="display: none; justify-content: center;">
+            <button id="deleteBtnSingle" class="modalNotes-btn" style="border-color: var(--accent-pink); color: var(--accent-pink);">Delete Task</button>
+          </div>
+        </div>
+        <div class="modalNotes-footer" style="justify-content: center;">
+          <button id="deleteBtnCancel" class="modalNotes-btn modalNotes-cancel">Cancel</button>
+        </div>
+      </div>
     </div>
     
     <!-- Reward Toast -->

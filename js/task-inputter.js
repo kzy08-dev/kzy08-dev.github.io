@@ -28,9 +28,12 @@ function initializeTaskInputter() {
     setupGenerateButton();
     selectedDate = document.getElementById("taskDate");
     
-    // Default today's date in input
-    const today = new Date().toISOString().split('T')[0];
-    selectedDate.value = today;
+    // Default today's date in input - Fix timezone drift
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    selectedDate.value = `${year}-${month}-${day}`;
 }
 
 function setupModal() {
@@ -52,6 +55,7 @@ function closeModal() {
     document.getElementById("taskModal").classList.add("hidden");
     document.getElementById("taskName").value = "";
     document.getElementById("taskDuration").value = "";
+    document.getElementById("taskStartTime").value = "";
 
     const defaultMusic = document.querySelector('input[name="music"][value="default"]');
     if (defaultMusic) {
@@ -63,6 +67,14 @@ function createTask() {
     const name = document.getElementById("taskName").value.trim();
     const duration = parseInt(document.getElementById("taskDuration").value);
     const music = document.querySelector('input[name="music"]:checked').value;
+    const recurrence = document.querySelector('input[name="recurrence"]:checked')?.value || "none";
+    
+    const startTimeInput = document.getElementById("taskStartTime").value;
+    let startTime = null;
+    if (startTimeInput) {
+        const [h, m] = startTimeInput.split(':').map(Number);
+        startTime = h * 60 + m;
+    }
 
     if (!name || !duration) {
         alert("Please enter a task name and duration.");
@@ -80,6 +92,8 @@ function createTask() {
         duration,
         priority: "high", // Defaults to high zone, can be dragged to medium/low
         musicType: music,
+        recurrence,
+        startTime,
         completed: false
     };
 
@@ -142,6 +156,54 @@ function addDragEvents(card) {
     });
 }
 
+function parseDateStr(dateStr) {
+    const parts = dateStr.split('-');
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+function formatDateStr(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function addDays(dateStr, days) {
+    const d = parseDateStr(dateStr);
+    d.setDate(d.getDate() + days);
+    return formatDateStr(d);
+}
+
+function addMonths(dateStr, months) {
+    const d = parseDateStr(dateStr);
+    d.setMonth(d.getMonth() + months);
+    return formatDateStr(d);
+}
+
+function getTaskDates(task, startDate) {
+    const dates = [];
+    if (task.recurrence === 'daily') {
+        for (let i = 0; i < 30; i++) dates.push(addDays(startDate, i));
+    } else if (task.recurrence === 'weekly') {
+        for (let i = 0; i < 12; i++) dates.push(addDays(startDate, i * 7));
+    } else if (task.recurrence === 'monthly') {
+        for (let i = 0; i < 12; i++) dates.push(addMonths(startDate, i));
+    } else if (task.recurrence === 'quarterly') {
+        for (let i = 0; i < 4; i++) dates.push(addMonths(startDate, i * 3));
+    } else {
+        dates.push(startDate); // none/one-time
+    }
+    return dates;
+}
+
+function minutesToTimeStr(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    const ampm = hours < 12 ? "AM" : "PM";
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${String(mins).padStart(2, "0")} ${ampm}`;
+}
+
 function setupGenerateButton() {
     document.getElementById("generateSchedule").addEventListener("click", async () => {
         const date = document.getElementById("taskDate").value;
@@ -157,16 +219,55 @@ function setupGenerateButton() {
         }
 
         selectedDate = date;
-        const schedule = generateSchedule(tasks, selectedDate);
 
-        saveSchedule(date, schedule);
+        // Collect all dates that need to be generated
+        const datesMap = {};
+
+        for (let task of tasks) {
+            const taskDates = getTaskDates(task, selectedDate);
+            const groupId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+            for (let d of taskDates) {
+                if (!datesMap[d]) datesMap[d] = [];
+                // Create unique ID for each instance to prevent completion crossover
+                let uniqueId = Date.now() + Math.floor(Math.random() * 100000);
+                datesMap[d].push({...task, id: uniqueId, groupId});
+            }
+        }
+
+        let allSchedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
+        let globalWarnings = [];
+
+        // Generate schedule for each date
+        for (let d in datesMap) {
+            let existingTasks = allSchedules[d]?.tasks || [];
+            
+            // Strip start/end times from existing tasks to allow re-scheduling
+            let existingUnscheduled = existingTasks.map(t => {
+                const {start, end, ...rest} = t;
+                return rest;
+            });
+
+            let combinedTasks = [...existingUnscheduled, ...datesMap[d]];
+            const scheduleResult = generateSchedule(combinedTasks, d);
+            allSchedules[d] = scheduleResult;
+            
+            if (scheduleResult.warnings && scheduleResult.warnings.length > 0) {
+                scheduleResult.warnings.forEach(w => globalWarnings.push(`[${d}] ${w}`));
+            }
+        }
+
+        localStorage.setItem("fgSchedules", JSON.stringify(allSchedules));
         
         // Save to Firebase Cloud
         if (window.firebaseHelper) {
             await window.firebaseHelper.syncLocalToFirebase();
         }
 
-        alert("✨ Day schedule generated successfully! Heading over to your Calendar.");
+        if (globalWarnings.length > 0) {
+            alert("Schedule generated with warnings:\n\n" + globalWarnings.join("\n"));
+        } else {
+            alert("✨ Day schedule(s) generated successfully! Heading over to your Calendar.");
+        }
         resetInputter();
         window.location.href = "./index.html";
     });
@@ -256,23 +357,48 @@ function cutWindow(windows, start, end) {
 }
 
 function generateSchedule(taskList, date) {
-    const sorted = [...taskList].sort((a, b) => {
-        const order = {
-            high: 1,
-            medium: 2,
-            low: 3
-        };
-        return order[a.priority] - order[b.priority];
-    });
+    const warnings = [];
+    const scheduled = [];
+    const unscheduled = [];
+    
+    const fixedTasks = taskList.filter(t => t.startTime !== null && t.startTime !== undefined);
+    const flexibleTasks = taskList.filter(t => t.startTime === null || t.startTime === undefined);
 
     let windows = createBaseWindow();
     windows = applyBlockedTime(windows, date);
 
-    const scheduled = [];
-    const unscheduled = [];
+    fixedTasks.sort((a, b) => a.startTime - b.startTime);
 
-    for (let task of sorted) {
-        // Add 5 minutes buffer between tasks for transition
+    for (let task of fixedTasks) {
+        const start = task.startTime;
+        const end = start + task.duration;
+        let placed = false;
+
+        for (let w of windows) {
+            if (start >= w.start && end <= w.end) {
+                scheduled.push({
+                    ...task,
+                    start,
+                    end
+                });
+                windows = cutWindow(windows, start, end + 5); 
+                placed = true;
+                break;
+            }
+        }
+
+        if (!placed) {
+            warnings.push(`Task "${task.name}" at ${minutesToTimeStr(start)} conflicts with an unavailable time or another task. Moved to a flexible time.`);
+            flexibleTasks.push(task); 
+        }
+    }
+
+    const sortedFlexible = [...flexibleTasks].sort((a, b) => {
+        const order = { high: 1, medium: 2, low: 3 };
+        return order[a.priority] - order[b.priority];
+    });
+
+    for (let task of sortedFlexible) {
         const needed = task.duration + 5;
         let placed = false;
 
@@ -288,7 +414,6 @@ function generateSchedule(taskList, date) {
                     end
                 });
 
-                // consume time and update window bounds
                 w.start = end + 5;
                 placed = true;
                 break;
@@ -297,17 +422,15 @@ function generateSchedule(taskList, date) {
 
         if (!placed) {
             unscheduled.push(task);
+            warnings.push(`Task "${task.name}" could not fit in the schedule.`);
         }
-    }
-
-    if (unscheduled.length > 0) {
-        console.warn("Some tasks could not be scheduled within the 7 AM - 11 PM window:", unscheduled);
     }
 
     return {
         date,
         tasks: scheduled,
-        unscheduled
+        unscheduled,
+        warnings
     };
 }
 

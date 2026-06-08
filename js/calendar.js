@@ -33,6 +33,105 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// Task Deletion Modal Logic
+let taskToDelete = null;
+
+window.handleTaskDelete = function(btn, id) {
+    try {
+        const activeDateKey = document.getElementById("scheduleModal").dataset.dateKey;
+        const targetTask = getTaskById(activeDateKey, id);
+        
+        if (!targetTask) {
+            alert("Error: Target task not found in schedule data! ID: " + id);
+            return;
+        }
+        
+        taskToDelete = { dateKey: activeDateKey, id };
+        
+        const isRecurring = targetTask.recurrence && targetTask.recurrence !== "none";
+        const modal = document.getElementById("deletePromptModal");
+        
+        if (!modal) {
+            alert("Error: deletePromptModal not found in DOM!");
+            return;
+        }
+        
+        const recurringOpts = document.getElementById("deleteRecurringOptions");
+        const singleOpts = document.getElementById("deleteSingleOption");
+        
+        if (isRecurring) {
+            recurringOpts.style.display = "flex";
+            singleOpts.style.display = "none";
+        } else {
+            recurringOpts.style.display = "none";
+            singleOpts.style.display = "flex";
+        }
+        
+        modal.style.display = "flex";
+        modal.querySelector(".modalNotes-container").style.display = "flex";
+    } catch (err) {
+        alert("Error in delete button click: " + err.message);
+    }
+};
+
+document.getElementById("deleteBtnCancel")?.addEventListener("click", () => {
+    document.getElementById("deletePromptModal").style.display = "none";
+    taskToDelete = null;
+});
+
+document.getElementById("deleteBtnSingle")?.addEventListener("click", () => {
+    if (taskToDelete) executeTaskDelete(taskToDelete.dateKey, taskToDelete.id, false);
+});
+
+document.getElementById("deleteBtnOne")?.addEventListener("click", () => {
+    if (taskToDelete) executeTaskDelete(taskToDelete.dateKey, taskToDelete.id, false);
+});
+
+document.getElementById("deleteBtnAll")?.addEventListener("click", () => {
+    if (taskToDelete) executeTaskDelete(taskToDelete.dateKey, taskToDelete.id, true);
+});
+
+function getTaskById(dateKey, id) {
+    const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
+    const tasks = schedules[dateKey]?.tasks || [];
+    return tasks.find(t => t.id === id);
+}
+
+function executeTaskDelete(dateKey, id, deleteAll) {
+    document.getElementById("deletePromptModal").style.display = "none";
+    const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
+    const targetTask = getTaskById(dateKey, id);
+    if (!targetTask) return;
+
+    if (deleteAll) {
+        if (targetTask.groupId) {
+             for (let d in schedules) {
+                 schedules[d].tasks = schedules[d].tasks.filter(t => t.groupId !== targetTask.groupId);
+             }
+        } else {
+             for (let d in schedules) {
+                 schedules[d].tasks = schedules[d].tasks.filter(t => 
+                     !(t.name === targetTask.name && t.recurrence === targetTask.recurrence && t.duration === targetTask.duration)
+                 );
+             }
+        }
+    } else {
+        if (schedules[dateKey]) {
+            schedules[dateKey].tasks = schedules[dateKey].tasks.filter(t => t.id !== id);
+        }
+    }
+    
+    localStorage.setItem("fgSchedules", JSON.stringify(schedules));
+    
+    if (window.firebaseHelper) {
+        window.firebaseHelper.syncLocalToFirebase();
+    }
+    
+    buildScheduleTable(schedules[dateKey]?.tasks || []);
+    renderCalendar();
+    taskToDelete = null;
+}
+
 /* WAIT FOR HEADER AND SIDEBAR TO LOAD */
 function waitForComponents() {
     const interval = setInterval(() => {
@@ -129,9 +228,12 @@ function renderCalendar() {
 /* OPEN MODAL DAY SCHEDULE */
 function openDaySchedule(day) {
     const dateKey = getSelectedDateKey(day);
-    const formattedDate = new Date(dateKey).toLocaleDateString("en-US");
+    const parts = dateKey.split('-');
+    const localDate = new Date(parts[0], parts[1] - 1, parts[2]);
+    const formattedDate = localDate.toLocaleDateString("en-US");
 
     document.getElementById("scheduleModal").classList.remove("hidden");
+    document.getElementById("scheduleModal").dataset.dateKey = dateKey;
     document.getElementById("selectedDateHeading").textContent = formattedDate;
 
     const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
@@ -154,9 +256,8 @@ function buildScheduleTable(tasks) {
     if (!body) return;
     body.innerHTML = "";
 
-    // Get the current viewing date from the modal heading
-    const dateHeading = document.getElementById("selectedDateHeading").textContent;
-    const dateKey = parseDateHeadingToKey(dateHeading);
+    // Get the current viewing date key from the modal dataset
+    const dateKey = document.getElementById("scheduleModal").dataset.dateKey;
 
     if (tasks.length === 0 && !hasBlockedTimeOnDate(dateKey)) {
         body.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-dim);">No tasks scheduled for this day. Click 'Edit Schedule' to add some!</td></tr>`;
@@ -379,6 +480,7 @@ function renderTaskBlock(task) {
                 ${task.name} <span style="font-size: 0.8rem; color: var(--text-dim);">(${task.duration} min)</span>
             </span>
             <div class="task-controls">
+                <button class="delete-btn" onclick="window.handleTaskDelete(this, ${task.id})" title="Delete task">✖</button>
                 <button class="play-btn" data-id="${task.id}" title="Play music" ${buttonState}>▶</button>
                 <button class="complete-btn" data-id="${task.id}" title="Complete task" ${buttonState}>✓</button>
             </div>
@@ -414,9 +516,9 @@ function attachTaskButtons() {
             increaseEmotionMeter(taskPriority);
             
             // Refresh table and main calendar cell previews
-            const activeDate = document.getElementById("selectedDateHeading").textContent;
+            const activeDateKey = document.getElementById("scheduleModal").dataset.dateKey;
             const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
-            buildScheduleTable(schedules[activeDate]?.tasks || []);
+            buildScheduleTable(schedules[activeDateKey]?.tasks || []);
             renderCalendar();
         });
     });
