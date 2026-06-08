@@ -197,8 +197,15 @@ function applyBlockedTime(windows, date) {
     let result = [...windows];
 
     for (let block of blocked) {
+        // Skip exemptions and only process actual blocks
+        if (block.type === "exemption") continue;
+
         // SINGLE DATE BLOCK
-        if (block.type === "single" && block.date === date) {
+        if (block.type === "specific" && block.date === date) {
+            // Check if this specific block is exempted for today
+            if (isBlockExempt(date, block.start, block.end, "specific")) {
+                continue;
+            }
             result = cutWindow(result, block.start, block.end);
         }
 
@@ -206,6 +213,10 @@ function applyBlockedTime(windows, date) {
         if (block.type === "recurring") {
             const day = getDayName(date);
             if (block.days.includes(day)) {
+                // Check if this recurring block is exempted for this date
+                if (isBlockExempt(date, block.start, block.end, "recurring")) {
+                    continue;
+                }
                 result = cutWindow(result, block.start, block.end);
             }
         }
