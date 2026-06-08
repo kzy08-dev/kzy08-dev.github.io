@@ -180,7 +180,9 @@ function getDayName(dateStr) {
     // Correct timezone drift for date input string
     const parts = dateStr.split('-');
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
-    return date.toLocaleDateString("en-US", { weekday: "short" }).toLowerCase();
+    const dayIndex = date.getDay();
+    const dayNames = ["SU", "M", "T", "W", "TH", "F", "SA"];
+    return dayNames[dayIndex];
 }
 
 /* Base schedule window: 7 AM (420 min) to 11 PM (1380 min) */
