@@ -758,6 +758,35 @@ select.modalTaskSchedule-Input {
     opacity: 0.9;
 }
 
+/* Blocked time slot styling */
+.blocked-time-slot {
+    opacity: 0.5;
+    background: rgba(255, 100, 100, 0.1);
+    text-decoration: line-through;
+}
+
+.blocked-time-label {
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+.remove-block-btn {
+    background: var(--accent-pink);
+    color: var(--text-light);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.remove-block-btn:hover {
+    opacity: 0.8;
+    box-shadow: 0 0 8px rgba(244, 63, 94, 0.3);
+}
+
 /* MODAL FOR NOTETAKING (BUTTON IN CALENDAR PAGE) */
 /* Semi-transparent background overlay to dim the rest of the screen */
 .modalNotes-overlay {
