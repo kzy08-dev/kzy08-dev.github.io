@@ -180,9 +180,7 @@ function getDayName(dateStr) {
     // Correct timezone drift for date input string
     const parts = dateStr.split('-');
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
-    const dayIndex = date.getDay();
-    const dayNames = ["SU", "M", "T", "W", "TH", "F", "SA"];
-    return dayNames[dayIndex];
+    return date.toLocaleDateString("en-US", { weekday: "short" }).toLowerCase();
 }
 
 /* Base schedule window: 7 AM (420 min) to 11 PM (1380 min) */
@@ -197,15 +195,8 @@ function applyBlockedTime(windows, date) {
     let result = [...windows];
 
     for (let block of blocked) {
-        // Skip exemptions and only process actual blocks
-        if (block.type === "exemption") continue;
-
         // SINGLE DATE BLOCK
-        if (block.type === "specific" && block.date === date) {
-            // Check if this specific block is exempted for today
-            if (isBlockExempt(date, block.start, block.end, "specific")) {
-                continue;
-            }
+        if (block.type === "single" && block.date === date) {
             result = cutWindow(result, block.start, block.end);
         }
 
@@ -213,10 +204,6 @@ function applyBlockedTime(windows, date) {
         if (block.type === "recurring") {
             const day = getDayName(date);
             if (block.days.includes(day)) {
-                // Check if this recurring block is exempted for this date
-                if (isBlockExempt(date, block.start, block.end, "recurring")) {
-                    continue;
-                }
                 result = cutWindow(result, block.start, block.end);
             }
         }
