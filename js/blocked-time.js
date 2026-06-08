@@ -194,3 +194,19 @@ function isTimeBlockedForDate(date, startMinutes, endMinutes) {
 
     return false;
 }
+
+// Check if a date/time is exempt from a recurring block
+function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
+    const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
+    
+    for (let block of blocked) {
+        if (block.type === "exemption" && 
+            block.date === dateKey && 
+            block.originalBlockStart === blockStart && 
+            block.originalBlockEnd === blockEnd &&
+            block.originalBlockType === blockType) {
+            return true;
+        }
+    }
+    return false;
+}
