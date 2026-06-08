@@ -148,32 +148,24 @@ function getSelectedDateKey(day) {
 }
 
 /* BUILD SCHEDULE GRID */
-/* BUILD SCHEDULE GRID WITH BLOCKED TIME DISPLAY */
 function buildScheduleTable(tasks) {
     const body = document.getElementById("scheduleBody");
     if (!body) return;
     body.innerHTML = "";
 
-    // Get the current viewing date from the modal heading
-    const dateHeading = document.getElementById("selectedDateHeading").textContent;
-    const dateKey = parseDateHeadingToKey(dateHeading);
-
-    if (tasks.length === 0 && !hasBlockedTimeOnDate(dateKey)) {
+    if (tasks.length === 0) {
         body.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-dim);">No tasks scheduled for this day. Click 'Edit Schedule' to add some!</td></tr>`;
         return;
     }
 
     const slotMap = generateSlotMap(tasks);
-    const blockedTimeSlots = getBlockedSlotsForDate(dateKey);
 
     for (let hour = 7; hour < 23; hour++) { // Show hours from 7 AM to 11 PM
         for (let min = 0; min < 60; min += 30) {
             const timeIndex = hour * 60 + min;
             const slotTasks = slotMap[timeIndex] || [];
-            const isBlocked = isTimeSlotBlocked(timeIndex, blockedTimeSlots);
-
-            // Display row if there are tasks OR if time is blocked
-            if (slotTasks.length > 0 || isBlocked) {
+            
+            if (slotTasks.length > 0) {
                 const row = document.createElement("tr");
                 const timeCell = document.createElement("td");
                 const taskCell = document.createElement("td");
@@ -183,18 +175,7 @@ function buildScheduleTable(tasks) {
                 timeCell.style.fontWeight = "600";
                 timeCell.style.color = "var(--primary-main)";
 
-                if (isBlocked && slotTasks.length === 0) {
-                    // Display blocked time slot
-                    row.classList.add("blocked-time-row");
-                    taskCell.innerHTML = renderBlockedTimeSlot(timeIndex, dateKey, blockedTimeSlots);
-                } else if (isBlocked && slotTasks.length > 0) {
-                    // Tasks during blocked time (shouldn't happen but handle it)
-                    taskCell.innerHTML = slotTasks.map(renderTaskBlock).join("");
-                } else {
-                    // Normal task display
-                    taskCell.innerHTML = slotTasks.map(renderTaskBlock).join("");
-                }
-
+                taskCell.innerHTML = slotTasks.map(renderTaskBlock).join("");
                 row.append(timeCell, taskCell);
                 body.appendChild(row);
             }
@@ -202,153 +183,6 @@ function buildScheduleTable(tasks) {
     }
 
     attachTaskButtons();
-    attachBlockRemovalButtons();
-}
-
-/* BLOCKED TIME HELPER FUNCTIONS */
-
-function parseDateHeadingToKey(dateHeading) {
-    // Convert "6/8/2026" or "June 8, 2026" format to "2026-06-08"
-    const date = new Date(dateHeading);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-function hasBlockedTimeOnDate(dateKey) {
-    const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
-    for (let block of blocked) {
-        if (block.type === "specific" && block.date === dateKey) {
-            return true;
-        }
-        if (block.type === "recurring") {
-            const dayName = getDayNameFromDateKey(dateKey);
-            if (block.days.includes(dayName)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-function getDayNameFromDateKey(dateKey) {
-    // Convert "2026-06-08" to day abbreviation (M, T, W, TH, F, SA, SU)
-    const parts = dateKey.split('-');
-    const date = new Date(parts[0], parts[1] - 1, parts[2]);
-    const dayIndex = date.getDay();
-    const dayNames = ["SU", "M", "T", "W", "TH", "F", "SA"];
-    return dayNames[dayIndex];
-}
-
-function getBlockedSlotsForDate(dateKey) {
-    // Returns array of all blocked time blocks for this specific date
-    const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
-    const applicableBlocks = [];
-
-    for (let block of blocked) {
-        // Specific date match
-        if (block.type === "specific" && block.date === dateKey) {
-            applicableBlocks.push(block);
-        }
-        // Recurring date match
-        else if (block.type === "recurring") {
-            const dayName = getDayNameFromDateKey(dateKey);
-            if (block.days.includes(dayName)) {
-                applicableBlocks.push(block);
-            }
-        }
-    }
-
-    return applicableBlocks;
-}
-
-function isTimeSlotBlocked(timeIndex, blockedSlots) {
-    // Check if a 30-minute slot is covered by any blocked time
-    const slotStart = timeIndex;
-    const slotEnd = timeIndex + 30;
-
-    for (let block of blockedSlots) {
-        // Check for overlap
-        if (!(slotEnd <= block.start || slotStart >= block.end)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function renderBlockedTimeSlot(timeIndex, dateKey, blockedSlots) {
-    // Find which block covers this time slot
-    const slotStart = timeIndex;
-    const slotEnd = timeIndex + 30;
-    
-    let coveringBlock = null;
-    for (let block of blockedSlots) {
-        if (!(slotEnd <= block.start || slotStart >= block.end)) {
-            coveringBlock = block;
-            break;
-        }
-    }
-
-    if (!coveringBlock) {
-        return `<div class="blocked-time-slot">
-                    <span class="blocked-time-label">Unavailable</span>
-                </div>`;
-    }
-
-    return `
-        <div class="blocked-time-slot">
-            <span class="blocked-time-label">Unavailable (${minutesToTime(coveringBlock.start)} - ${minutesToTime(coveringBlock.end)})</span>
-            <button class="remove-block-btn" data-date="${dateKey}" data-block-start="${coveringBlock.start}" data-block-end="${coveringBlock.end}" data-block-type="${coveringBlock.type}">
-                Remove For Today
-            </button>
-        </div>
-    `;
-}
-
-function minutesToTime(minutes) {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    const ampm = hours < 12 ? "AM" : "PM";
-    const displayHours = hours % 12 || 12;
-    return `${displayHours}:${String(mins).padStart(2, "0")} ${ampm}`;
-}
-
-function attachBlockRemovalButtons() {
-    document.querySelectorAll(".remove-block-btn").forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            
-            const dateKey = btn.dataset.date;
-            const blockStart = parseInt(btn.dataset.blockStart);
-            const blockEnd = parseInt(btn.dataset.blockEnd);
-            const blockType = btn.dataset.blockType;
-
-            // Create a temporary specific date block that exempts this date
-            const exemptionRecord = {
-                type: "exemption",
-                date: dateKey,
-                originalBlockStart: blockStart,
-                originalBlockEnd: blockEnd,
-                originalBlockType: blockType,
-                createdAt: new Date().toISOString()
-            };
-
-            // Add exemption to blocked time
-            let blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
-            blocked.push(exemptionRecord);
-            localStorage.setItem("fgBlockedTime", JSON.stringify(blocked));
-
-            // Sync to Firebase
-            if (window.firebaseHelper) {
-                await window.firebaseHelper.syncLocalToFirebase();
-            }
-
-            // Refresh the table
-            const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
-            buildScheduleTable(schedules[dateKey]?.tasks || []);
-        });
-    });
 }
 
 function generateSlotMap(tasks) {
