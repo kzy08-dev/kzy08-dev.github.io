@@ -148,24 +148,32 @@ function getSelectedDateKey(day) {
 }
 
 /* BUILD SCHEDULE GRID */
+/* BUILD SCHEDULE GRID WITH BLOCKED TIME DISPLAY */
 function buildScheduleTable(tasks) {
     const body = document.getElementById("scheduleBody");
     if (!body) return;
     body.innerHTML = "";
 
-    if (tasks.length === 0) {
+    // Get the current viewing date from the modal heading
+    const dateHeading = document.getElementById("selectedDateHeading").textContent;
+    const dateKey = parseDateHeadingToKey(dateHeading);
+
+    if (tasks.length === 0 && !hasBlockedTimeOnDate(dateKey)) {
         body.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--text-dim);">No tasks scheduled for this day. Click 'Edit Schedule' to add some!</td></tr>`;
         return;
     }
 
     const slotMap = generateSlotMap(tasks);
+    const blockedTimeSlots = getBlockedSlotsForDate(dateKey);
 
     for (let hour = 7; hour < 23; hour++) { // Show hours from 7 AM to 11 PM
         for (let min = 0; min < 60; min += 30) {
             const timeIndex = hour * 60 + min;
             const slotTasks = slotMap[timeIndex] || [];
-            
-            if (slotTasks.length > 0) {
+            const isBlocked = isTimeSlotBlocked(timeIndex, blockedTimeSlots);
+
+            // Display row if there are tasks OR if time is blocked
+            if (slotTasks.length > 0 || isBlocked) {
                 const row = document.createElement("tr");
                 const timeCell = document.createElement("td");
                 const taskCell = document.createElement("td");
@@ -175,7 +183,18 @@ function buildScheduleTable(tasks) {
                 timeCell.style.fontWeight = "600";
                 timeCell.style.color = "var(--primary-main)";
 
-                taskCell.innerHTML = slotTasks.map(renderTaskBlock).join("");
+                if (isBlocked && slotTasks.length === 0) {
+                    // Display blocked time slot
+                    row.classList.add("blocked-time-row");
+                    taskCell.innerHTML = renderBlockedTimeSlot(timeIndex, dateKey, blockedTimeSlots);
+                } else if (isBlocked && slotTasks.length > 0) {
+                    // Tasks during blocked time (shouldn't happen but handle it)
+                    taskCell.innerHTML = slotTasks.map(renderTaskBlock).join("");
+                } else {
+                    // Normal task display
+                    taskCell.innerHTML = slotTasks.map(renderTaskBlock).join("");
+                }
+
                 row.append(timeCell, taskCell);
                 body.appendChild(row);
             }
@@ -183,6 +202,7 @@ function buildScheduleTable(tasks) {
     }
 
     attachTaskButtons();
+    attachBlockRemovalButtons();
 }
 
 function generateSlotMap(tasks) {
