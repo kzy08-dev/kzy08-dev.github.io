@@ -510,22 +510,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const cancelBtn = document.querySelector('.modalNotes-cancel');
   const finishBtn = document.querySelector('.modalNotes-finish');
 
-  // Key used to store and retrieve data from localStorage
-  const STORAGE_KEY = 'taskNotesData';
+  // Firebase collection reference
+  const NOTES_COLLECTION = 'userNotes';
 
   // 2. Renamed function to open the notes modal
   function openNotesModal() {
-    // Load existing notes from localStorage if they exist
-    const savedData = localStorage.getItem(STORAGE_KEY);
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        textarea.value = parsedData.notes || '';
-      } catch (e) {
-        console.error("Error parsing JSON from localStorage", e);
-      }
-    } else {
-      textarea.value = ''; // Clear if no saved data exists
+    // Load existing notes from Firebase
+    const currentUser = firebase.auth().currentUser;
+    if (currentUser) {
+      firebase.firestore()
+        .collection(NOTES_COLLECTION)
+        .doc(currentUser.uid)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            textarea.value = doc.data().notes || '';
+          } else {
+            textarea.value = '';
+          }
+        })
+        .catch((error) => {
+          console.error("Error loading notes from Firebase:", error);
+          textarea.value = '';
+        });
     }
 
     // Display the modal using flex layout
@@ -539,18 +546,28 @@ document.addEventListener('DOMContentLoaded', () => {
     modalContainer.style.display = 'none';
   }
 
-  // 4. Renamed function to save notes text to JSON and close
+  // 4. Renamed function to save notes to Firebase and close
   function saveAndCloseNotesModal() {
-    const notesPayload = {
-      notes: textarea.value,
-      updatedAt: new Date().toISOString()
-    };
+    const currentUser = firebase.auth().currentUser;
+    if (currentUser) {
+      const notesPayload = {
+        notes: textarea.value,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
 
-    // Save the object as a JSON string
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notesPayload));
-    
-    // Close the modal using the newly renamed function
-    closeNotesModal();
+      // Save to Firebase
+      firebase.firestore()
+        .collection(NOTES_COLLECTION)
+        .doc(currentUser.uid)
+        .set(notesPayload, { merge: true })
+        .then(() => {
+          console.log("Notes saved to Firebase");
+          closeNotesModal();
+        })
+        .catch((error) => {
+          console.error("Error saving notes to Firebase:", error);
+        });
+    }
   }
 
   // 5. Event Listeners utilizing the new function names
