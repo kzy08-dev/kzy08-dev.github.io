@@ -522,17 +522,17 @@ function attachTaskButtons() {
             
             // Mark task complete locally
             markTaskComplete(id);
-
+    
             // Audio reinforcement
             playSuccessChime();
-
+    
             // Spawn visual rewards at click coordinates
             spawnFloatingCoin(e);
             spawnConfetti(e.clientX, e.clientY);
-
-            // Reward metrics updates
-            showRewardMessage(taskPriority);
-            increaseEmotionMeter(taskPriority);
+    
+            // Reward metrics updates - ensure this completes before refreshing
+            await showRewardMessage(taskPriority);
+            await increaseEmotionMeter(taskPriority);
             
             // Refresh table and main calendar cell previews
             const activeDateKey = document.getElementById("scheduleModal").dataset.dateKey;
@@ -541,7 +541,7 @@ function attachTaskButtons() {
             renderCalendar();
         });
     });
-
+    
     // Global variables to track YouTube iframe playback
     let currentYouTubeIframe = null;
     let currentYouTubePlayingId = null;
@@ -749,10 +749,21 @@ function getRewardByPriority(priority) {
 async function showRewardMessage(priority) {
     const amount = getRewardByPriority(priority);
     const toast = document.getElementById("rewardToast");
-    if (!toast) return;
+    if (!toast) {
+        console.warn("rewardToast element not found");
+        return;
+    }
 
     const message = rewardMessages[Math.floor(Math.random() * rewardMessages.length)];
     toast.textContent = `${message} +$${amount.toFixed(2)}!`;
+    
+    // Ensure any previous "show" class is removed before adding it again
+    toast.classList.remove("show");
+    
+    // Force a reflow to ensure the class removal takes effect
+    void toast.offsetWidth;
+    
+    // Now add the show class
     toast.classList.add("show");
 
     // Add money and update display
@@ -765,9 +776,9 @@ async function showRewardMessage(priority) {
         await window.firebaseHelper.syncLocalToFirebase();
     }
 
-    setTimeout(() => {
-        toast.classList.remove("show");
-    }, 3500);
+    // Wait before removing the show class
+    await new Promise(resolve => setTimeout(resolve, 3500));
+    toast.classList.remove("show");
 }
 
 function updateStatsDisplay() {
