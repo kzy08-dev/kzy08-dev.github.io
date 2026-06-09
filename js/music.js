@@ -144,12 +144,7 @@ window.togglePlay = function(index) {
     if (song.type === "youtube") {
         // If this YouTube link is already playing, toggle pause
         if (currentYouTubeIframe && currentPlayIndex === index) {
-            const playerState = currentYouTubeIframe.getIframe().contentWindow.postMessage(
-                { event: 'command', func: 'getPlayerState' },
-                '*'
-            );
-            
-            // Toggle play/pause by reloading the iframe or using postMessage
+            // Check if already playing using the dataset flag
             const isPlaying = currentYouTubeIframe.dataset.isPlaying === "true";
             if (isPlaying) {
                 // Pause by stopping the iframe
