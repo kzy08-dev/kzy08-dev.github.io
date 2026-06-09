@@ -5,6 +5,7 @@ const saveSongBtn = document.getElementById("saveSong");
 const cancelSongBtn = document.getElementById("cancelSong");
 let currentlyPlaying = null;
 let currentPlayIndex = null;
+let currentYouTubeIframe = null;
 
 // Listen for Firebase sync
 window.addEventListener("fg-data-synced", () => {
@@ -40,6 +41,7 @@ function renderPlaylist() {
     songs.forEach((song, index) => {
         const isPlaying = currentlyPlaying && currentPlayIndex === index;
         const songCard = document.createElement("div");
+        const isYouTubePlaying = currentYouTubeIframe && currentPlayIndex === index;
         songCard.classList.add("song-card");
         songCard.innerHTML = `
             <div class="song-info">
@@ -133,16 +135,62 @@ if (saveSongBtn) {
     });
 }
 
-/* PLAY AUDIO */
+/* PLAY AUDIO & YOUTUBE */
 window.togglePlay = function(index) {
     const songs = getPlaylist();
     const song = songs[index];
 
-    if (song.type !== "audio") {
-        alert("YouTube link saved! External media players integration coming soon. Use local MP3 files for instant playback.");
+    // NEW: Handle YouTube links
+    if (song.type === "youtube") {
+        // If this YouTube link is already playing, toggle pause
+        if (currentYouTubeIframe && currentPlayIndex === index) {
+            const playerState = currentYouTubeIframe.getIframe().contentWindow.postMessage(
+                { event: 'command', func: 'getPlayerState' },
+                '*'
+            );
+            
+            // Toggle play/pause by reloading the iframe or using postMessage
+            const isPlaying = currentYouTubeIframe.dataset.isPlaying === "true";
+            if (isPlaying) {
+                // Pause by stopping the iframe
+                currentYouTubeIframe.src = ""; // Clear src to stop playback
+                currentYouTubeIframe.dataset.isPlaying = "false";
+            } else {
+                // Resume by reloading the iframe
+                currentYouTubeIframe.src = song.source + "?autoplay=1&controls=0";
+                currentYouTubeIframe.dataset.isPlaying = "true";
+            }
+            renderPlaylist();
+            return;
+        }
+
+        // Stop any currently playing audio
+        if (currentlyPlaying) {
+            currentlyPlaying.pause();
+            currentlyPlaying = null;
+        }
+
+        // Remove any previously playing YouTube iframe
+        if (currentYouTubeIframe) {
+            currentYouTubeIframe.remove();
+        }
+
+        // Create new hidden iframe for YouTube
+        currentYouTubeIframe = document.createElement("iframe");
+        currentYouTubeIframe.style.width = "0";
+        currentYouTubeIframe.style.height = "0";
+        currentYouTubeIframe.style.border = "none";
+        currentYouTubeIframe.src = song.source + "?autoplay=1&controls=0";
+        currentYouTubeIframe.allow = "autoplay";
+        currentYouTubeIframe.dataset.isPlaying = "true";
+        
+        document.body.appendChild(currentYouTubeIframe);
+        currentPlayIndex = index;
+        renderPlaylist();
         return;
     }
 
+    // Original audio playback logic
     if (currentlyPlaying && currentPlayIndex === index) {
         // Toggle Pause
         if (currentlyPlaying.paused) {
@@ -156,6 +204,12 @@ window.togglePlay = function(index) {
 
     if (currentlyPlaying) {
         currentlyPlaying.pause();
+    }
+
+    // NEW: Remove any playing YouTube iframe when switching to audio
+    if (currentYouTubeIframe) {
+        currentYouTubeIframe.remove();
+        currentYouTubeIframe = null;
     }
 
     try {
@@ -186,6 +240,15 @@ window.deleteSong = function(index) {
         currentlyPlaying = null;
         currentPlayIndex = null;
     } else if (currentlyPlaying && currentPlayIndex > index) {
+        currentPlayIndex--;
+    }
+
+    // NEW: Clean up YouTube iframe if deleting the currently playing YouTube song
+    if (currentYouTubeIframe && currentPlayIndex === index) {
+        currentYouTubeIframe.remove();
+        currentYouTubeIframe = null;
+        currentPlayIndex = null;
+    } else if (currentYouTubeIframe && currentPlayIndex > index) {
         currentPlayIndex--;
     }
     
