@@ -758,6 +758,22 @@ select.modalTaskSchedule-Input {
     opacity: 0.9;
 }
 
+.btnSchedule-cancel {
+    background-color: transparent;
+    border: 1px solid var(--text-dim);
+    color: var(--text-dim);
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btnSchedule-cancel:hover {
+    border-color: var(--text-main);
+    color: var(--text-main);
+}
+
 /* Blocked time slot styling */
 .blocked-time-slot {
     opacity: 0.5;
