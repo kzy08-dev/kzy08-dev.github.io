@@ -144,7 +144,6 @@ window.togglePlay = function(index) {
     if (song.type === "youtube") {
         // If this YouTube link is already playing, toggle pause
         if (currentYouTubeIframe && currentPlayIndex === index) {
-            // Check if already playing using the dataset flag
             const isPlaying = currentYouTubeIframe.dataset.isPlaying === "true";
             if (isPlaying) {
                 // Pause by stopping the iframe
@@ -152,7 +151,10 @@ window.togglePlay = function(index) {
                 currentYouTubeIframe.dataset.isPlaying = "false";
             } else {
                 // Resume by reloading the iframe
-                currentYouTubeIframe.src = song.source + "?autoplay=1&controls=0";
+                const src = song.source.includes("?") 
+                    ? song.source + "&autoplay=1&controls=0" 
+                    : song.source + "?autoplay=1&controls=0";
+                currentYouTubeIframe.src = src;
                 currentYouTubeIframe.dataset.isPlaying = "true";
             }
             renderPlaylist();
@@ -175,7 +177,13 @@ window.togglePlay = function(index) {
         currentYouTubeIframe.style.width = "0";
         currentYouTubeIframe.style.height = "0";
         currentYouTubeIframe.style.border = "none";
-        currentYouTubeIframe.src = song.source + "?autoplay=1&controls=0";
+        
+        // Check if URL already has query parameters
+        const src = song.source.includes("?") 
+            ? song.source + "&autoplay=1&controls=0" 
+            : song.source + "?autoplay=1&controls=0";
+        
+        currentYouTubeIframe.src = src;
         currentYouTubeIframe.allow = "autoplay";
         currentYouTubeIframe.dataset.isPlaying = "true";
         
