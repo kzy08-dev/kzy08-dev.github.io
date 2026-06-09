@@ -367,6 +367,17 @@ function isTimeSlotBlocked(timeIndex, blockedSlots) {
     // Check if a 30-minute slot is covered by any blocked time
     const slotStart = timeIndex;
     const slotEnd = timeIndex + 30;
+    const dateKey = document.getElementById("scheduleModal").dataset.dateKey;
+
+    // Check for exemptions first
+    const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
+    const hasExemption = blocked.some(block => 
+        block.type === "exemption" && block.date === dateKey
+    );
+    
+    if (hasExemption) {
+        return false;
+    }
 
     for (let block of blockedSlots) {
         // Check for overlap
@@ -391,14 +402,11 @@ function renderBlockedTimeSlot(timeIndex, dateKey, blockedSlots) {
     }
 
     if (!coveringBlock) {
-        return `<div class="blocked-time-slot">
-                    <span class="blocked-time-label">Unavailable</span>
-                </div>`;
+        return ``;
     }
 
     return `
         <div class="blocked-time-slot">
-            <span class="blocked-time-label">Unavailable (${minutesToTime(coveringBlock.start)} - ${minutesToTime(coveringBlock.end)})</span>
             <button class="remove-block-btn" data-date="${dateKey}" data-block-start="${coveringBlock.start}" data-block-end="${coveringBlock.end}" data-block-type="${coveringBlock.type}">
                 Remove For Today
             </button>
@@ -424,19 +432,30 @@ function attachBlockRemovalButtons() {
             const blockEnd = parseInt(btn.dataset.blockEnd);
             const blockType = btn.dataset.blockType;
 
-            // Create a temporary specific date block that exempts this date
-            const exemptionRecord = {
-                type: "exemption",
-                date: dateKey,
-                originalBlockStart: blockStart,
-                originalBlockEnd: blockEnd,
-                originalBlockType: blockType,
-                createdAt: new Date().toISOString()
-            };
-
-            // Add exemption to blocked time
+            // Remove the specific block or add an exemption
             let blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
-            blocked.push(exemptionRecord);
+            
+            if (blockType === "specific") {
+                // For specific blocks, remove the entire block entry
+                blocked = blocked.filter(block => !(
+                    block.type === "specific" &&
+                    block.date === dateKey &&
+                    block.start === blockStart &&
+                    block.end === blockEnd
+                ));
+            } else if (blockType === "recurring") {
+                // For recurring blocks, create an exemption for this date
+                const exemptionRecord = {
+                    type: "exemption",
+                    date: dateKey,
+                    originalBlockStart: blockStart,
+                    originalBlockEnd: blockEnd,
+                    originalBlockType: blockType,
+                    createdAt: new Date().toISOString()
+                };
+                blocked.push(exemptionRecord);
+            }
+
             localStorage.setItem("fgBlockedTime", JSON.stringify(blocked));
 
             // Sync to Firebase
@@ -444,9 +463,10 @@ function attachBlockRemovalButtons() {
                 await window.firebaseHelper.syncLocalToFirebase();
             }
 
-            // Refresh the table
+            // Refresh both the schedule table and calendar
             const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
             buildScheduleTable(schedules[dateKey]?.tasks || []);
+            renderCalendar();
         });
     });
 }
