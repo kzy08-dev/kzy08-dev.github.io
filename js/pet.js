@@ -291,10 +291,10 @@ function initializePetName() {
     petNameInput.value = localStorage.getItem("fgPetName") || "Buddy";
 
     // Auto-resize input to text length
-    petNameInput.style.width = ((petNameInput.value.length + 1) * 15) + "px";
+    petNameInput.style.width = Math.max(80, (petNameInput.value.length + 1) * 15) + "px";
 
     petNameInput.addEventListener("input", () => {
-        petNameInput.style.width = ((petNameInput.value.length + 1) * 15) + "px";
+        petNameInput.style.width = Math.max(80, (petNameInput.value.length + 1) * 15) + "px";
     });
 
     petNameInput.addEventListener("blur", async () => {
