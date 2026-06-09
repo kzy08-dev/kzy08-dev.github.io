@@ -39,9 +39,19 @@ function renderPlaylist() {
     }
 
     songs.forEach((song, index) => {
-        const isPlaying = currentlyPlaying && currentPlayIndex === index;
-        const songCard = document.createElement("div");
-        const isYouTubePlaying = currentYouTubeIframe && currentPlayIndex === index;
+        const isAudioPlaying =
+    currentlyPlaying &&
+    currentPlayIndex === index &&
+    !currentlyPlaying.paused;
+
+const isYouTubePlaying =
+    currentYouTubeIframe &&
+    currentPlayIndex === index &&
+    currentYouTubeIframe.dataset.isPlaying === "true";
+
+const isPlaying = isAudioPlaying || isYouTubePlaying;
+
+const songCard = document.createElement("div");
         songCard.classList.add("song-card");
         songCard.innerHTML = `
             <div class="song-info">
