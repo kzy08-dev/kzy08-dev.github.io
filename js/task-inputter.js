@@ -452,3 +452,24 @@ function resetInputter() {
     document.getElementById("mediumTasks").innerHTML = "";
     document.getElementById("lowTasks").innerHTML = "";
 }
+
+// Close Mark Time Unavailable modal
+const scheduleBackdrop = document.querySelector(".modalSchedule-backdrop");
+const scheduleForm = document.getElementById("unavailabilitySchedule-Form");
+const scheduleCancelBtn = document.querySelector(".btnSchedule-cancel");
+
+if (scheduleCancelBtn) {
+    scheduleCancelBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        scheduleBackdrop.style.display = "none";
+    });
+}
+
+// Close when clicking on backdrop
+if (scheduleBackdrop) {
+    scheduleBackdrop.addEventListener("click", (e) => {
+        if (e.target === scheduleBackdrop) {
+            scheduleBackdrop.style.display = "none";
+        }
+    });
+}
