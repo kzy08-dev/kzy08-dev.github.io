@@ -883,6 +883,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const cancelBtn = document.querySelector('.modalNotes-cancel');
   const finishBtn = document.querySelector('.modalNotes-finish');
 
+  const firebase = window.firebase || window.firebaseHelper?.firebase || window.firebaseHelper;
+
   // Firebase collection reference
   const NOTES_COLLECTION = 'userNotes';
 
