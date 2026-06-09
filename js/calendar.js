@@ -1,5 +1,4 @@
 /* Calendar Page */
-
 let currentDate = new Date();
 let balance = Number(localStorage.getItem("fgBalance")) || 10;
 let emotionLevel = Number(localStorage.getItem("fgEmotionLevel")) || 50;
@@ -889,29 +888,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 2. Renamed function to open the notes modal
   function openNotesModal() {
-    // Load existing notes from Firebase
-    const currentUser = firebase.auth().currentUser;
-    if (currentUser) {
-      firebase.firestore()
-        .collection(NOTES_COLLECTION)
-        .doc(currentUser.uid)
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            textarea.value = doc.data().notes || '';
-          } else {
-            textarea.value = '';
-          }
-        })
-        .catch((error) => {
-          console.error("Error loading notes from Firebase:", error);
-          textarea.value = '';
-        });
-    }
-
-    // Display the modal using flex layout
-    modalOverlay.style.display = 'flex';
-    modalContainer.style.display = 'flex';
+      // Check if firebase is available before using it
+      if (firebase && firebase.auth) {
+        const currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+          firebase.firestore()
+            .collection(NOTES_COLLECTION)
+            .doc(currentUser.uid)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                textarea.value = doc.data().notes || '';
+              } else {
+                textarea.value = '';
+              }
+            })
+            .catch((error) => {
+              console.error("Error loading notes from Firebase:", error);
+              textarea.value = '';
+            });
+        }
+      } else {
+        console.warn("Firebase is not available yet.");
+        textarea.value = '';
+      }
+    
+      // Display the modal anyway
+      modalOverlay.style.display = 'flex';
+      modalContainer.style.display = 'flex';
   }
 
   // 3. Renamed function to close the notes modal without saving
@@ -922,26 +926,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 4. Renamed function to save notes to Firebase and close
   function saveAndCloseNotesModal() {
-    const currentUser = firebase.auth().currentUser;
-    if (currentUser) {
-      const notesPayload = {
-        notes: textarea.value,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-
-      // Save to Firebase
-      firebase.firestore()
-        .collection(NOTES_COLLECTION)
-        .doc(currentUser.uid)
-        .set(notesPayload, { merge: true })
-        .then(() => {
-          console.log("Notes saved to Firebase");
-          closeNotesModal();
-        })
-        .catch((error) => {
-          console.error("Error saving notes to Firebase:", error);
-        });
-    }
+      if (firebase && firebase.auth) {
+        const currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+          const notesPayload = {
+            notes: textarea.value,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+    
+          firebase.firestore()
+            .collection(NOTES_COLLECTION)
+            .doc(currentUser.uid)
+            .set(notesPayload, { merge: true })
+            .then(() => {
+              console.log("Notes saved to Firebase");
+              closeNotesModal();
+            })
+            .catch((error) => {
+              console.error("Error saving notes to Firebase:", error);
+            });
+        }
+      } else {
+        console.error("Cannot save. Firebase is not available.");
+        closeNotesModal(); // Still close the modal so the user isn't stuck
+      }
   }
 
   // 5. Event Listeners utilizing the new function names
