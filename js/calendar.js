@@ -68,6 +68,7 @@ window.handleTaskDelete = function(btn, id) {
         
         modal.style.display = "flex";
         modal.querySelector(".modalNotes-container").style.display = "flex";
+        closeModal()
     } catch (err) {
         alert("Error in delete button click: " + err.message);
     }
@@ -306,7 +307,6 @@ function buildScheduleTable(tasks) {
 }
 
 /* BLOCKED TIME HELPER FUNCTIONS */
-
 function parseDateHeadingToKey(dateHeading) {
     // Convert "6/8/2026" or "June 8, 2026" format to "2026-06-08"
     const date = new Date(dateHeading);
