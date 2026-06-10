@@ -807,7 +807,6 @@ select.modalTaskSchedule-Input {
 /* Semi-transparent background overlay to dim the rest of the screen */
 .modalNotes-overlay {
   position: fixed;
-  z-index: 10;
   top: 0;
   left: 0;
   width: 100%;
