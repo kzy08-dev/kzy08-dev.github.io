@@ -76,7 +76,6 @@ window.handleTaskDelete = function(btn, id) {
 
 document.getElementById("deleteBtnCancel")?.addEventListener("click", () => {
     document.getElementById("deletePromptModal").style.display = "none";
-    openDaySchedule();
     taskToDelete = null;
 });
 
