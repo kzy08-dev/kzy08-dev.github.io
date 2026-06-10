@@ -531,7 +531,7 @@ function attachTaskButtons() {
             spawnConfetti(e.clientX, e.clientY);
     
             // Reward metrics updates - ensure this completes before refreshing
-            await showRewardMessage(taskPriority);
+            showRewardMessage(taskPriority);
             await increaseEmotionMeter(taskPriority);
             
             // Refresh table and main calendar cell previews
