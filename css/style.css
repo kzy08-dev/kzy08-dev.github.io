@@ -979,8 +979,27 @@ select.modalTaskSchedule-Input {
     padding: 30px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
     max-height: 90vh;
+    overflow: hidden; 
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-right: 8px;
+    margin-bottom: 20px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-navy);
 }
 
 .modalTask-Input {
@@ -995,7 +1014,7 @@ select.modalTaskSchedule-Input {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.modalTask-Input: focus {
+.modalTask-Input:focus {
     outline: none;
     border-color: var(--primary-main);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
@@ -1005,6 +1024,7 @@ select.modalTaskSchedule-Input {
     font-size: 1.6rem;
     font-weight: 800;
     color: var(--primary-main);
+    margin-bottom: 15px;
 }
 
 .schedule-table-wrapper {
