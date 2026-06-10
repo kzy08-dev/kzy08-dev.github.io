@@ -1141,16 +1141,19 @@ tr:hover td {
     padding: 16px 24px;
     border-radius: 15px;
     box-shadow: var(--shadow-neon);
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: 3000;
     pointer-events: none;
+    visibility: hidden; /* Use visibility instead of opacity: 0 */
+    opacity: 0;         /* Keep this so it can smoothly transition */
+    transform: translateY(20px);
+    transition: visibility 0s linear 0.4s, opacity 0.4s native, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .reward-toast.show {
+    visibility: visible; /* Show it instantly when .show is added */
     opacity: 1;
     transform: translateY(0);
+    transition-delay: 0s; /* Remove the delay when appearing */
 }
 
 .coin-animation-element {
