@@ -8,7 +8,7 @@ let currentPlayingId = null;
 
 const rewardMessages = [
     "Yay, you did it! You earned",
-    "Woof! Great work! You earned",
+    "Great work! You earned",
     "Your pet is proud! You earned",
     "Happiness meter upgraded! You earned",
     "Spectacular job! You earned"
