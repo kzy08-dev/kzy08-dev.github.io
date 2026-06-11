@@ -288,7 +288,7 @@ function initializePetName() {
     const petNameInput = document.getElementById("petName");
     if (!petNameInput) return;
 
-    const index = 0;
+    let index = 0;
     switch (petChoice) {
         case "puppy":
             index = 0;
