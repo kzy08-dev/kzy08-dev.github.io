@@ -318,7 +318,7 @@ function initializePetName() {
         const newName = petNameInput.value.trim() || "Buddy";
         petNameInput.value = newName;
         petNameList[index] = newName;
-        localStorage.setItem("fgPetName", JSON.stringify(petNameList));
+        localStorage.setItem("fgPetName", JSON.stringify(petNameList) || ["Buddy", "Buddy", "Buddy"]);
 
         if (window.firebaseHelper) {
             await window.firebaseHelper.syncLocalToFirebase();
