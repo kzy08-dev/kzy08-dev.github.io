@@ -493,10 +493,15 @@ function generateSlotMap(tasks) {
 function renderTaskBlock(task) {
     const completedStyle = task.completed ? 'style="opacity: 0.4;"' : '';
     const buttonState = task.completed ? 'disabled' : '';
+    
+    // Check if task.startTime exists and is a valid number
+    const hasStartTime = task.startTime !== undefined && task.startTime !== null && !isNaN(task.startTime);
+    const timeDisplay = hasStartTime ? ` - ${minutesToTime(task.startTime)}` : '';
+
     return `
         <div class="task-entry" ${completedStyle}>
             <span class="task-name" style="${task.completed ? 'text-decoration: line-through; color: var(--text-dim);' : ''}">
-                ${task.name} <span style="font-size: 0.8rem; color: var(--text-dim);">(${task.duration} min)</span>
+                ${task.name} <span style="font-size: 0.8rem; color: var(--text-dim);">(${task.duration} min)${timeDisplay}</span>
             </span>
             <div class="task-controls">
                 <button class="delete-btn" onclick="window.handleTaskDelete(this, ${task.id})" title="Delete task">✖</button>
