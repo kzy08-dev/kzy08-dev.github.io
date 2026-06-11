@@ -919,78 +919,46 @@ document.addEventListener('DOMContentLoaded', () => {
   const cancelBtn = document.querySelector('.modalNotes-cancel');
   const finishBtn = document.querySelector('.modalNotes-finish');
 
-  const firebase = window.firebase || window.firebaseHelper?.firebase || window.firebaseHelper;
+  // Key updated to use 'fgNotes' directly for raw text storage
+  const STORAGE_KEY = 'fgNotes';
 
-  // Firebase collection reference
-  const NOTES_COLLECTION = 'userNotes';
-
-  // 2. Renamed function to open the notes modal
+  // 2. Function to open the notes modal
   function openNotesModal() {
-      // Check if firebase is available before using it
-      if (firebase && firebase.auth) {
-        const currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-          firebase.firestore()
-            .collection(NOTES_COLLECTION)
-            .doc(currentUser.uid)
-            .get()
-            .then((doc) => {
-              if (doc.exists) {
-                textarea.value = doc.data().notes || '';
-              } else {
-                textarea.value = '';
-              }
-            })
-            .catch((error) => {
-              console.error("Error loading notes from Firebase:", error);
-              textarea.value = '';
-            });
-        }
-      } else {
-        console.warn("Firebase is not available yet.");
-        textarea.value = '';
-      }
+    // Load existing raw text notes from localStorage if they exist
+    const savedNotes = localStorage.getItem(STORAGE_KEY);
     
-      // Display the modal anyway
-      modalOverlay.style.display = 'flex';
-      modalContainer.style.display = 'flex';
+    if (savedNotes) {
+      textarea.value = savedNotes;
+    } else {
+      textarea.value = ''; // Clear if no saved data exists
+    }
+
+    // Display the modal using flex layout
+    modalOverlay.style.display = 'flex';
+    modalContainer.style.display = 'flex';
   }
 
-  // 3. Renamed function to close the notes modal without saving
+  // 3. Function to close the notes modal without saving
   function closeNotesModal() {
     modalOverlay.style.display = 'none';
     modalContainer.style.display = 'none';
   }
 
-  // 4. Renamed function to save notes to Firebase and close
-  function saveAndCloseNotesModal() {
-      if (firebase && firebase.auth) {
-        const currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-          const notesPayload = {
-            notes: textarea.value,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          };
+  // 4. Made async to handle the Firebase sync await rule
+  async function saveAndCloseNotesModal() {
+    // Save the raw textarea string directly to match Firebase expectations
+    localStorage.setItem(STORAGE_KEY, textarea.value);
     
-          firebase.firestore()
-            .collection(NOTES_COLLECTION)
-            .doc(currentUser.uid)
-            .set(notesPayload, { merge: true })
-            .then(() => {
-              console.log("Notes saved to Firebase");
-              closeNotesModal();
-            })
-            .catch((error) => {
-              console.error("Error saving notes to Firebase:", error);
-            });
-        }
-      } else {
-        console.error("Cannot save. Firebase is not available.");
-        closeNotesModal(); // Still close the modal so the user isn't stuck
-      }
+    // Close the modal using the renamed function
+    closeNotesModal();
+
+    // Firebase Sync snippet injected at the end of the function
+    if (window.firebaseHelper) {
+        await window.firebaseHelper.syncLocalToFirebase();
+    }
   }
 
-  // 5. Event Listeners utilizing the new function names
+  // 5. Event Listeners utilizing the function names
   if (noteTakingBtn) {
     noteTakingBtn.addEventListener('click', openNotesModal);
   } else {
