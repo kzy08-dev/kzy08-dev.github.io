@@ -497,6 +497,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .day:hover {
@@ -533,6 +535,7 @@ body {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    max-width: 100%;
 }
 
 .task-dot.completed {
