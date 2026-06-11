@@ -303,7 +303,8 @@ function initializePetName() {
             index = 0;
     }
 
-    const petNameList = localStorage.getItem("fgPetName") || ["Buddy", "Buddy", "Buddy"];
+    const stored = localStorage.getItem("fgPetName");
+    const petNameList = stored ? JSON.parse(stored) : ["Buddy", "Buddy", "Buddy"];
     petNameInput.value = petNameList[index];
 
     // Auto-resize input to text length
@@ -313,7 +314,7 @@ function initializePetName() {
         petNameInput.style.width = Math.max(80, (petNameInput.value.length + 1) * 15) + "px";
     });
 
-    Input.addEventListener("blur", async () => {
+    petNameInput.addEventListener("blur", async () => {
         const newName = petNameInput.value.trim() || "Buddy";
         petNameInput.value = newName;
         petNameList[index] = newName;
