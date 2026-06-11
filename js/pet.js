@@ -147,6 +147,7 @@ function toggleCategory(category) {
     }
 
     saveAndSyncEquipment();
+    renderStore();
 }
 
 function updateEquipmentToggleButtons() {
