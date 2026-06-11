@@ -76,6 +76,7 @@ window.firebaseHelper = {
                 playlist: [],
                 purchasedItems: [],
                 equippedItems: { Clothing: null, Toy: null, Food: null },
+                notes: "Notes",
                 createdAt: new Date().toISOString()
             };
             
@@ -121,7 +122,8 @@ window.firebaseHelper = {
             schedules: {},
             playlist: [],
             purchasedItems: [],
-            equippedItems: { Clothing: null, Toy: null, Food: null }
+            equippedItems: { Clothing: null, Toy: null, Food: null },
+            notes: "Notes"
         };
         this.writeLocalData(initialData);
         localStorage.setItem("fgIsDemo", "true");
@@ -147,7 +149,8 @@ window.firebaseHelper = {
                 schedules: JSON.parse(localStorage.getItem("fgSchedules")) || {},
                 playlist: JSON.parse(localStorage.getItem("feralGremlinPlaylist")) || [],
                 purchasedItems: JSON.parse(localStorage.getItem("fgPurchasedItems")) || [],
-                equippedItems: JSON.parse(localStorage.getItem("fgEquippedItems")) || { Clothing: null, Toy: null, Food: null }
+                equippedItems: JSON.parse(localStorage.getItem("fgEquippedItems")) || { Clothing: null, Toy: null, Food: null },
+                notes: localStorage.getItem("fgNotes") || "Notes"
             };
             
             await updateDoc(doc(db, "users", this.currentUser.uid), data);
@@ -184,6 +187,7 @@ window.firebaseHelper = {
         localStorage.setItem("feralGremlinPlaylist", JSON.stringify(data.playlist || []));
         localStorage.setItem("fgPurchasedItems", JSON.stringify(data.purchasedItems || []));
         localStorage.setItem("fgEquippedItems", JSON.stringify(data.equippedItems || { Clothing: null, Toy: null, Food: null }));
+        localStorage.setItem("fgNotes", data.notes || "Notes");
     },
 
     clearLocalData() {
@@ -196,6 +200,7 @@ window.firebaseHelper = {
         localStorage.removeItem("feralGremlinPlaylist");
         localStorage.removeItem("fgPurchasedItems");
         localStorage.removeItem("fgEquippedItems");
+        localStorage.removeItem("fgNotes");
         localStorage.removeItem("fgIsDemo");
     },
 
