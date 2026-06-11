@@ -77,6 +77,7 @@ window.firebaseHelper = {
                 purchasedItems: [],
                 equippedItems: { Clothing: null, Toy: null, Food: null },
                 notes: "Notes",
+                blockedTime: [],
                 createdAt: new Date().toISOString()
             };
             
@@ -123,7 +124,8 @@ window.firebaseHelper = {
             playlist: [],
             purchasedItems: [],
             equippedItems: { Clothing: null, Toy: null, Food: null },
-            notes: "Notes"
+            notes: "Notes",
+            blockedTime: []
         };
         this.writeLocalData(initialData);
         localStorage.setItem("fgIsDemo", "true");
@@ -150,7 +152,8 @@ window.firebaseHelper = {
                 playlist: JSON.parse(localStorage.getItem("feralGremlinPlaylist")) || [],
                 purchasedItems: JSON.parse(localStorage.getItem("fgPurchasedItems")) || [],
                 equippedItems: JSON.parse(localStorage.getItem("fgEquippedItems")) || { Clothing: null, Toy: null, Food: null },
-                notes: localStorage.getItem("fgNotes") || "Notes"
+                notes: localStorage.getItem("fgNotes") || "Notes",
+                blockedTime: JSON.parse(localStorage.getItem("fgBlockedTime")) || []
             };
             
             await updateDoc(doc(db, "users", this.currentUser.uid), data);
@@ -188,6 +191,7 @@ window.firebaseHelper = {
         localStorage.setItem("fgPurchasedItems", JSON.stringify(data.purchasedItems || []));
         localStorage.setItem("fgEquippedItems", JSON.stringify(data.equippedItems || { Clothing: null, Toy: null, Food: null }));
         localStorage.setItem("fgNotes", data.notes || "Notes");
+        localStorage.setItem("fgBlockedTime", JSON.stringify(data.blockedTime || []));
     },
 
     clearLocalData() {
@@ -201,6 +205,7 @@ window.firebaseHelper = {
         localStorage.removeItem("fgPurchasedItems");
         localStorage.removeItem("fgEquippedItems");
         localStorage.removeItem("fgNotes");
+        localStorage.removeItem("fgBlockedTime");
         localStorage.removeItem("fgIsDemo");
     },
 
