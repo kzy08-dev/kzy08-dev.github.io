@@ -65,6 +65,7 @@ function setupPetSelectors() {
             
             updatePetSelectorUI();
             updatePetAppearance();
+            initializePetName();
             playEquipChime(600); // feedback beep
             
             // Sync choices to Firebase
@@ -283,7 +284,6 @@ function updateStatsDisplay() {
     }
 }
 
-/* PETNAME EDITABLE FIELD */
 function initializePetName() {
     const petNameInput = document.getElementById("petName");
     if (!petNameInput) return;
@@ -303,27 +303,36 @@ function initializePetName() {
             index = 0;
     }
 
+    // Always fetch the freshest data from localStorage
     const stored = localStorage.getItem("fgPetName");
     const petNameList = stored ? JSON.parse(stored) : ["Buddy", "Buddy", "Buddy"];
+    
+    // Update the input field value
     petNameInput.value = petNameList[index];
 
     // Auto-resize input to text length
-    petNameInput.style.width = Math.max(80, (petNameInput.value.length + 1) * 15) + "px";
-
-    petNameInput.addEventListener("input", () => {
+    const resizeInput = () => {
         petNameInput.style.width = Math.max(80, (petNameInput.value.length + 1) * 15) + "px";
-    });
+    };
+    resizeInput();
+    
+    petNameInput.oninput = resizeInput;
 
-    petNameInput.addEventListener("blur", async () => {
+    petNameInput.onblur = async () => {
         const newName = petNameInput.value.trim() || "Buddy";
         petNameInput.value = newName;
-        petNameList[index] = newName;
-        localStorage.setItem("fgPetName", JSON.stringify(petNameList) || ["Buddy", "Buddy", "Buddy"]);
+
+        // Re-fetch right before saving to avoid overwriting data if multiple things change
+        const currentStored = localStorage.getItem("fgPetName");
+        const currentList = currentStored ? JSON.parse(currentStored) : ["Buddy", "Buddy", "Buddy"];
+        
+        currentList[index] = newName;
+        localStorage.setItem("fgPetName", JSON.stringify(currentList));
 
         if (window.firebaseHelper) {
             await window.firebaseHelper.syncLocalToFirebase();
         }
-    });
+    };
 }
 
 /* AUDIO SYNTHESIZERS */
