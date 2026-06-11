@@ -288,7 +288,23 @@ function initializePetName() {
     const petNameInput = document.getElementById("petName");
     if (!petNameInput) return;
 
-    petNameInput.value = localStorage.getItem("fgPetName") || "Buddy";
+    const index = 0;
+    switch (petChoice) {
+        case "puppy":
+            index = 0;
+            break;
+        case "turtle":
+            index = 1;
+            break;
+        case "dragon":
+            index = 2;
+            break;
+        default:
+            index = 0;
+    }
+
+    const petNameList = localStorage.getItem("fgPetName") || ["Buddy", "Buddy", "Buddy"];
+    petNameInput.value = petNameList[index];
 
     // Auto-resize input to text length
     petNameInput.style.width = Math.max(80, (petNameInput.value.length + 1) * 15) + "px";
@@ -297,10 +313,11 @@ function initializePetName() {
         petNameInput.style.width = Math.max(80, (petNameInput.value.length + 1) * 15) + "px";
     });
 
-    petNameInput.addEventListener("blur", async () => {
+    Input.addEventListener("blur", async () => {
         const newName = petNameInput.value.trim() || "Buddy";
         petNameInput.value = newName;
-        localStorage.setItem("fgPetName", newName);
+        petNameList[index] = newName;
+        localStorage.setItem("fgPetName", JSON.stringify(petNameList));
 
         if (window.firebaseHelper) {
             await window.firebaseHelper.syncLocalToFirebase();
