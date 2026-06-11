@@ -69,7 +69,7 @@ window.firebaseHelper = {
                 email: user.email,
                 username: username || "User",
                 balance: 10.00,
-                petName: "Buddy",
+                petName: ["Buddy", "Buddy", "Buddy"],
                 petChoice: "puppy",
                 emotionLevel: 50,
                 schedules: {},
@@ -116,7 +116,7 @@ window.firebaseHelper = {
         const initialData = {
             username: username || "User",
             balance: 10.00,
-            petName: "Buddy",
+            petName: ["Buddy", "Buddy", "Buddy"],
             petChoice: "puppy",
             emotionLevel: 50,
             schedules: {},
@@ -143,7 +143,7 @@ window.firebaseHelper = {
             const data = {
                 username: localStorage.getItem("fgUsername") || "User",
                 balance: Number(localStorage.getItem("fgBalance")) || 10,
-                petName: localStorage.getItem("fgPetName") || "Buddy",
+                petName: JSON.parse(localStorage.getItem("fgPetName")) || ["Buddy", "Buddy", "Buddy"],
                 petChoice: localStorage.getItem("fgPetChoice") || "puppy",
                 emotionLevel: Number(localStorage.getItem("fgEmotionLevel")) || 50,
                 schedules: JSON.parse(localStorage.getItem("fgSchedules")) || {},
@@ -180,7 +180,7 @@ window.firebaseHelper = {
     writeLocalData(data) {
         localStorage.setItem("fgUsername", data.username || "User");
         localStorage.setItem("fgBalance", data.balance !== undefined ? data.balance : 10);
-        localStorage.setItem("fgPetName", data.petName || "Buddy");
+        localStorage.setItem("fgPetName", JSON.stringify(data.petName || ["Buddy", "Buddy", "Buddy"]));
         localStorage.setItem("fgPetChoice", data.petChoice || "puppy");
         localStorage.setItem("fgEmotionLevel", data.emotionLevel !== undefined ? data.emotionLevel : 50);
         localStorage.setItem("fgSchedules", JSON.stringify(data.schedules || {}));
