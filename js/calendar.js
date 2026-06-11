@@ -123,10 +123,15 @@ function executeTaskDelete(dateKey, id, deleteAll) {
     
     localStorage.setItem("fgSchedules", JSON.stringify(schedules));
     
+    if (window.updateEmotionFromCurrentWeek) {
+        window.updateEmotionFromCurrentWeek();
+    }
+    
     if (window.firebaseHelper) {
         window.firebaseHelper.syncLocalToFirebase();
     }
     
+    updateStatsDisplay();
     buildScheduleTable(schedules[dateKey]?.tasks || []);
     renderCalendar();
     taskToDelete = null;
@@ -211,7 +216,8 @@ function renderCalendar() {
             // Limit preview to 3 items to avoid overflows
             daySchedule.slice(0, 3).forEach(task => {
                 const completedClass = task.completed ? "completed" : "";
-                html += `<div class="task-dot ${completedClass}">${task.name}</div>`;
+                const dotStyle = task.color ? `style="border-left-color: ${task.color};"` : "";
+                html += `<div class="task-dot ${completedClass}" ${dotStyle}>${task.name}</div>`;
             });
             if (daySchedule.length > 3) {
                 html += `<div style="padding-left: 5px; opacity: 0.6;">+${daySchedule.length - 3} more</div>`;
@@ -491,7 +497,12 @@ function generateSlotMap(tasks) {
 }
 
 function renderTaskBlock(task) {
-    const completedStyle = task.completed ? 'style="opacity: 0.4;"' : '';
+    let baseStyles = '';
+    if (task.color) {
+        baseStyles = `background-color: ${task.color} !important; border-color: rgba(255,255,255,0.4) !important;`;
+    }
+    
+    const completedStyle = task.completed ? `style="opacity: 0.4; ${baseStyles}"` : (baseStyles ? `style="${baseStyles}"` : '');
     const buttonState = task.completed ? 'disabled' : '';
     
     // Check if task.startTime exists and is a valid number
@@ -792,6 +803,10 @@ function updateStatsDisplay() {
         balanceDisplay.textContent = `$${balance.toFixed(2)}`;
     }
     
+    // Always fetch fresh emotion level
+    emotionLevel = Number(localStorage.getItem("fgEmotionLevel"));
+    if (isNaN(emotionLevel)) emotionLevel = 50;
+
     const emotionFill = document.getElementById("emotionFill");
     if (emotionFill) {
         emotionFill.style.width = `${emotionLevel}%`;
@@ -809,10 +824,9 @@ function updateStatsDisplay() {
 
 /* PET HAPPINESS LEVEL */
 async function increaseEmotionMeter(priority) {
-    const boosts = { "high": 15, "medium": 8, "low": 4 };
-    const amount = boosts[priority.toLowerCase()] || 8;
-    emotionLevel = Math.min(100, emotionLevel + amount);
-    localStorage.setItem("fgEmotionLevel", emotionLevel);
+    if (window.updateEmotionFromCurrentWeek) {
+        window.updateEmotionFromCurrentWeek();
+    }
     updateStatsDisplay();
     
     if (window.firebaseHelper) {

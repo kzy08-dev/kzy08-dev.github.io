@@ -145,7 +145,22 @@ window.firebaseHelper = {
             const data = {
                 username: localStorage.getItem("fgUsername") || "User",
                 balance: Number(localStorage.getItem("fgBalance")) || 10,
-                petName: JSON.parse(localStorage.getItem("fgPetName")) || ["Buddy", "Buddy", "Buddy"],
+                petName: (() => {
+                    let p = ["Buddy", "Buddy", "Buddy"];
+                    try {
+                        const stored = localStorage.getItem("fgPetName");
+                        if (stored) {
+                            const parsed = JSON.parse(stored);
+                            if (Array.isArray(parsed)) p = parsed;
+                            else if (typeof parsed === "string") p = [parsed, parsed, parsed];
+                        }
+                    } catch(e) {
+                        const raw = localStorage.getItem("fgPetName");
+                        if (raw) p = [raw, raw, raw];
+                    }
+                    while(p.length < 3) p.push("Buddy");
+                    return p;
+                })(),
                 petChoice: localStorage.getItem("fgPetChoice") || "puppy",
                 emotionLevel: Number(localStorage.getItem("fgEmotionLevel")) || 50,
                 schedules: JSON.parse(localStorage.getItem("fgSchedules")) || {},

@@ -94,7 +94,8 @@ function createTask() {
         musicType: music,
         recurrence,
         startTime,
-        completed: false
+        completed: false,
+        color: "" // Default color
     };
 
     tasks.push(task);
@@ -102,14 +103,101 @@ function createTask() {
     closeModal();
 }
 
+function openColorPicker(btn, taskId) {
+    if (window.event) window.event.stopPropagation();
+
+    let existing = document.getElementById("color-picker-bar");
+    if (existing) {
+        existing.remove();
+        if (window._colorPickerCloseHandler) {
+            document.removeEventListener("click", window._colorPickerCloseHandler);
+            window._colorPickerCloseHandler = null;
+        }
+        if (existing.dataset.taskId === String(taskId)) {
+            return;
+        }
+    }
+    
+    const bar = document.createElement("div");
+    bar.id = "color-picker-bar";
+    bar.className = "color-picker-bar";
+    bar.dataset.taskId = taskId;
+    
+    bar.addEventListener('click', e => e.stopPropagation());
+    
+    const colors = ["", "#ff416c", "#00c6ff", "#00e676", "#9d4edd", "#ffd700", "#ff8a00"];
+    
+    colors.forEach(color => {
+        const swatch = document.createElement("div");
+        swatch.className = "color-swatch";
+        if (color === "") {
+            swatch.style.background = "linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.5) 45%, rgba(255,255,255,0.5) 55%, transparent 60%)";
+            swatch.title = "Default Color";
+        } else {
+            swatch.style.backgroundColor = color;
+        }
+        
+        swatch.onclick = (e) => {
+            e.stopPropagation();
+            setTaskColor(taskId, color);
+            bar.remove();
+            if (window._colorPickerCloseHandler) {
+                document.removeEventListener("click", window._colorPickerCloseHandler);
+                window._colorPickerCloseHandler = null;
+            }
+        };
+        bar.appendChild(swatch);
+    });
+    
+    btn.parentNode.appendChild(bar);
+    
+    window._colorPickerCloseHandler = () => {
+        const current = document.getElementById("color-picker-bar");
+        if (current) current.remove();
+        document.removeEventListener("click", window._colorPickerCloseHandler);
+        window._colorPickerCloseHandler = null;
+    };
+    
+    document.addEventListener("click", window._colorPickerCloseHandler);
+}
+
+function setTaskColor(taskId, color) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        task.color = color;
+        const card = document.querySelector(`.task-card[data-id="${taskId}"]`);
+        if (card) {
+            const durationEl = card.querySelector('.task-duration');
+            if (color) {
+                card.style.backgroundColor = color;
+                card.style.borderLeftColor = "rgba(255,255,255,0.5)"; // Make left border blend in
+                if (durationEl) durationEl.style.color = "rgba(255, 255, 255, 0.9)";
+            } else {
+                card.style.backgroundColor = "";
+                card.style.borderLeftColor = "";
+                if (durationEl) durationEl.style.color = "";
+            }
+        }
+    }
+}
+
 function renderTaskCard(task) {
     const card = document.createElement("div");
     card.className = "task-card";
     card.draggable = true;
     card.dataset.id = task.id;
+    
+    if (task.color) {
+        card.style.backgroundColor = task.color;
+        card.style.borderLeftColor = "rgba(255,255,255,0.5)";
+    }
+    
     card.innerHTML = `
-        <div class="task-title">${task.name}</div>
-        <div class="task-duration">⏱ ${task.duration} min</div>
+        <div style="flex: 1; pointer-events: none;">
+            <div class="task-title">${task.name}</div>
+            <div class="task-duration" ${task.color ? 'style="color: rgba(255, 255, 255, 0.9);"' : ''}>⏱ ${task.duration} min</div>
+        </div>
+        <div class="task-color-btn" onclick="openColorPicker(this, ${task.id})" title="Change Color">🎨</div>
     `;
 
     addDragEvents(card);
@@ -257,6 +345,10 @@ function setupGenerateButton() {
         }
 
         localStorage.setItem("fgSchedules", JSON.stringify(allSchedules));
+        
+        if (window.updateEmotionFromCurrentWeek) {
+            window.updateEmotionFromCurrentWeek();
+        }
         
         // Save to Firebase Cloud
         if (window.firebaseHelper) {

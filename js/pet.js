@@ -68,6 +68,11 @@ function setupPetSelectors() {
             initializePetName();
             playEquipChime(600); // feedback beep
             
+            // Update sidebar pet image if it exists
+            if (window.updateSidebarPet) {
+                window.updateSidebarPet();
+            }
+            
             // Sync choices to Firebase
             if (window.firebaseHelper) {
                 await window.firebaseHelper.syncLocalToFirebase();
@@ -92,8 +97,18 @@ function updatePetAppearance() {
     const petImage = document.getElementById("petImage");
     if (!petImage) return;
 
+    let emotionLevel = Number(localStorage.getItem("fgEmotionLevel"));
+    if (isNaN(emotionLevel)) emotionLevel = 50;
+    
+    let suffix = "";
+    if (emotionLevel < 40) {
+        suffix = "_sad";
+    } else if (emotionLevel <= 60) {
+        suffix = "_neutral";
+    }
+
     // Load active image
-    petImage.src = `assets/images/${petChoice}.png`;
+    petImage.src = `assets/images/${petChoice}${suffix}.png`;
     petImage.alt = petChoice;
 
     // Render Equipped Emojis
@@ -304,9 +319,24 @@ function initializePetName() {
             index = 0;
     }
 
-    // Always fetch the freshest data from localStorage
-    const stored = localStorage.getItem("fgPetName");
-    const petNameList = stored ? JSON.parse(stored) : ["Buddy", "Buddy", "Buddy"];
+    // Always fetch the freshest data from localStorage, ensuring it's an array
+    let petNameList = ["Buddy", "Buddy", "Buddy"];
+    try {
+        const stored = localStorage.getItem("fgPetName");
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) {
+                petNameList = parsed;
+                // Pad array if too short
+                while (petNameList.length < 3) petNameList.push("Buddy");
+            } else if (typeof parsed === "string") {
+                petNameList = [parsed, parsed, parsed];
+            }
+        }
+    } catch (e) {
+        const raw = localStorage.getItem("fgPetName");
+        if (raw) petNameList = [raw, raw, raw];
+    }
     
     // Update the input field value
     petNameInput.value = petNameList[index];
@@ -317,23 +347,41 @@ function initializePetName() {
     };
     resizeInput();
     
-    petNameInput.oninput = resizeInput;
-
-    petNameInput.onblur = async () => {
-        const newName = petNameInput.value.trim() || "Buddy";
-        petNameInput.value = newName;
-
-        // Re-fetch right before saving to avoid overwriting data if multiple things change
-        const currentStored = localStorage.getItem("fgPetName");
-        const currentList = currentStored ? JSON.parse(currentStored) : ["Buddy", "Buddy", "Buddy"];
+    // Cleanup old listeners to prevent multiple bindings if called multiple times
+    const newPetNameInput = petNameInput.cloneNode(true);
+    petNameInput.parentNode.replaceChild(newPetNameInput, petNameInput);
+    
+    newPetNameInput.addEventListener("input", () => {
+        // 1. Resize
+        newPetNameInput.style.width = Math.max(80, (newPetNameInput.value.length + 1) * 15) + "px";
+        
+        // 2. Save locally immediately so it persists across tab closes
+        const newName = newPetNameInput.value.trim() || "Buddy";
+        
+        let currentList = ["Buddy", "Buddy", "Buddy"];
+        try {
+            const currentStored = localStorage.getItem("fgPetName");
+            if (currentStored) {
+                const parsed = JSON.parse(currentStored);
+                if (Array.isArray(parsed)) {
+                    currentList = parsed;
+                    while (currentList.length < 3) currentList.push("Buddy");
+                } else if (typeof parsed === "string") {
+                    currentList = [parsed, parsed, parsed];
+                }
+            }
+        } catch(e) {}
         
         currentList[index] = newName;
         localStorage.setItem("fgPetName", JSON.stringify(currentList));
+    });
 
+    newPetNameInput.addEventListener("change", async () => {
+        // On blur/enter, sync to cloud
         if (window.firebaseHelper) {
             await window.firebaseHelper.syncLocalToFirebase();
         }
-    };
+    });
 }
 
 /* AUDIO SYNTHESIZERS */
