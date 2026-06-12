@@ -328,7 +328,7 @@ body {
 
 .sidebar.collapsed .nav-link {
     justify-content: center;
-    padding: 14px 0;
+    gap: 0;
 }
 
 .nav-link span {
