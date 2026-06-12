@@ -335,7 +335,7 @@ body {
     transition: opacity 0.3s;
 }
 
-.sidebar.collapsed .nav-link span {
+.sidebar.collapsed .nav-link .text {
     display: none;
 }
 
