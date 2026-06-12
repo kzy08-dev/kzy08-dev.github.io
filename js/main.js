@@ -8,7 +8,8 @@ Shared functionality used by all pages
 document.addEventListener("DOMContentLoaded", async () => {
     // Resolve relative path based on workspace location
     const passwordInput = document.getElementById("authPassword");
-const togglePassword = document.getElementById("togglePassword");
+    const togglePassword = document.getElementById("togglePassword");
+}
 
 togglePassword.addEventListener("click", () => {
     const isHidden = passwordInput.type === "password";
