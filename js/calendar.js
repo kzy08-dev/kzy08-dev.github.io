@@ -502,7 +502,7 @@ function renderTaskBlock(task) {
         baseStyles = `background-color: ${task.color} !important; border-color: rgba(255,255,255,0.4) !important;`;
     }
     
-    const completedStyle = task.completed ? `style="opacity: 0.4; ${baseStyles}"` : (baseStyles ? `style="${baseStyles}"` : '');
+    const completedStyle = task.completed ? `style="opacity: 0.4;"` : '';
     const buttonState = task.completed ? 'disabled' : '';
     
     // Check if task.startTime exists and is a valid number
