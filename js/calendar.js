@@ -771,7 +771,7 @@ async function showRewardMessage(priority) {
     }
 
     const message = rewardMessages[Math.floor(Math.random() * rewardMessages.length)];
-    toast.textContent = `${message} +$${amount.toFixed(2)}!`;
+    toast.innerHTML = `${message} +<img src="assets/images/gremlin_coin.png" class="coin-icon" alt="coin"> ${amount}!`;
     
     // Ensure any previous "show" class is removed before adding it again
     toast.classList.remove("show");
@@ -800,7 +800,7 @@ async function showRewardMessage(priority) {
 function updateStatsDisplay() {
     const balanceDisplay = document.getElementById("balanceDisplay");
     if (balanceDisplay) {
-        balanceDisplay.textContent = `$${balance.toFixed(2)}`;
+        balanceDisplay.innerHTML = `<img src="assets/images/gremlin_coin.png" class="coin-icon" alt="coin"> ${Math.floor(balance)}`;
     }
     
     // Always fetch fresh emotion level
@@ -864,7 +864,7 @@ function playSuccessChime() {
 function spawnFloatingCoin(e) {
     const coin = document.createElement("div");
     coin.className = "coin-animation-element";
-    coin.textContent = "🪙";
+    coin.innerHTML = "<img src='assets/images/gremlin_coin.png' class='coin-icon' alt='coin' style='width: 30px; height: 30px;'>";
     coin.style.left = `${e.clientX - 10}px`;
     coin.style.top = `${e.clientY - 20}px`;
     document.body.appendChild(coin);

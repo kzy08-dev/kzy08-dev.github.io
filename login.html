@@ -34,7 +34,12 @@
                 
                 <div class="form-group">
                     <label for="authPassword">Password</label>
-                    <input type="password" id="authPassword" required placeholder="••••••••" autocomplete="current-password">
+                    <div class="password-wrapper">
+                        <input type="password" id="authPassword" required placeholder="••••••••" autocomplete="current-password">
+                        <button type="button" id="passwordToggle" class="password-toggle" aria-label="Toggle password visibility">
+                            👁️
+                        </button>
+                    </div>
                 </div>
                 
                 <div id="authError" class="auth-error-msg hidden"></div>
@@ -61,6 +66,7 @@
             const authSubtitle = document.getElementById("authSubtitle");
             const authError = document.getElementById("authError");
             const demoBanner = document.getElementById("demoBanner");
+            const passwordToggle = document.getElementById("passwordToggle");
             
             let isRegisterMode = false;
 
@@ -75,6 +81,13 @@
                     }
                 }
             }, 100);
+
+            // Toggle password visibility
+            passwordToggle.addEventListener("click", () => {
+                const type = authPassword.getAttribute("type") === "password" ? "text" : "password";
+                authPassword.setAttribute("type", type);
+                passwordToggle.textContent = type === "password" ? "👁️" : "🙈";
+            });
 
             // Toggle form mode
             tabLogin.addEventListener("click", () => {

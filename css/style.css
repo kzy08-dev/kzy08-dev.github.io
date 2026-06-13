@@ -194,6 +194,35 @@ body {
     box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
 }
 
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px; /* Make room for the toggle icon */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.password-toggle:hover {
+    color: var(--text-light);
+}
+
 .auth-submit-btn {
     background: linear-gradient(135deg, var(--primary-main), var(--primary-hover));
     color: var(--bg-dark);
@@ -2053,4 +2082,13 @@ tr:hover td {
     .auth-card {
         padding: 25px 20px;
     }
+}
+
+.coin-icon {
+    height: 1.8em;
+    width: 1.8em;
+    vertical-align: middle;
+    margin-right: 4px;
+    border-radius: 50%;
+    clip-path: circle(45% at 50% 50%);
 }

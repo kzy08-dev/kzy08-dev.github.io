@@ -1,14 +1,9 @@
 // store database with emojis and pricing
 const storeItems = [
-    // CLOTHES
-    { name: "Blue Cap", category: "Clothing", price: 4.00, emoji: "🧢", description: "Cool blue sports cap" },
-    { name: "Warm Scarf", category: "Clothing", price: 6.00, emoji: "🧣", description: "Cozy red knitted scarf" },
-    { name: "Tiny Crown", category: "Clothing", price: 15.00, emoji: "👑", description: "For the royal gremlin" },
-    { name: "Cool Shades", category: "Clothing", price: 20.00, emoji: "🕶️", description: "Vibrant neon sunglasses" },
-    
+
     // TOYS
     { name: "Tennis Ball", category: "Toy", price: 3.00, emoji: "🎾", description: "A bouncing yellow ball" },
-    { name: "Rope Toy", category: "Toy", price: 5.00, emoji: "🪢", description: "Sturdy braided rope for tugging" },
+    { name: "Rope Toy", category: "Toy", price: 5.00, emoji: "🧶", description: "Sturdy braided rope for tugging" },
     { name: "Squeaky Duck", category: "Toy", price: 8.50, emoji: "🦆", description: "Makes a loud squeak!" },
     { name: "Neon Frisbee", category: "Toy", price: 12.00, emoji: "🥏", description: "Flies far in the yard" },
 
@@ -112,14 +107,9 @@ function updatePetAppearance() {
     petImage.alt = petChoice;
 
     // Render Equipped Emojis
-    const clothingOverlay = document.getElementById("clothingOverlay");
     const toyOverlay = document.getElementById("toyOverlay");
     const foodOverlay = document.getElementById("foodOverlay");
 
-    if (clothingOverlay) {
-        const item = storeItems.find(i => i.name === equippedItems.Clothing);
-        clothingOverlay.textContent = item ? item.emoji : "";
-    }
     if (toyOverlay) {
         const item = storeItems.find(i => i.name === equippedItems.Toy);
         toyOverlay.textContent = item ? item.emoji : "";
@@ -135,7 +125,6 @@ function updatePetAppearance() {
 
 /* QUICK TOGGLES FOR ACCESSORIES */
 function setupEquipmentToggles() {
-    document.getElementById("clothingEquipBtn").addEventListener("click", () => toggleCategory("Clothing"));
     document.getElementById("toyEquipBtn").addEventListener("click", () => toggleCategory("Toy"));
     document.getElementById("foodEquipBtn").addEventListener("click", () => toggleCategory("Food"));
 }
@@ -166,14 +155,9 @@ function toggleCategory(category) {
 }
 
 function updateEquipmentToggleButtons() {
-    const clothingBtn = document.getElementById("clothingEquipBtn");
     const toyBtn = document.getElementById("toyEquipBtn");
     const foodBtn = document.getElementById("foodEquipBtn");
 
-    if (clothingBtn) {
-        clothingBtn.classList.toggle("equipped", !!equippedItems.Clothing);
-        clothingBtn.textContent = equippedItems.Clothing ? "👕 Remove Accessories" : "👕 Wear Clothing";
-    }
     if (toyBtn) {
         toyBtn.classList.toggle("equipped", !!equippedItems.Toy);
         toyBtn.textContent = equippedItems.Toy ? "🧸 Hide Toy" : "🧸 Play with Toy";
@@ -224,7 +208,7 @@ function renderStore() {
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
-                <div class="store-price">$${item.price.toFixed(2)}</div>
+                <div class="store-price"><img src="assets/images/gremlin_coin.png" class="coin-icon" alt="coin"> ${item.price}</div>
                 ${buttonHTML}
             </div>
         `;
@@ -238,7 +222,7 @@ window.buyItem = async function(itemName) {
     if (!item) return;
 
     if (balance < item.price) {
-        alert("❌ Not enough balance! Complete tasks on your calendar to earn money.");
+        alert("❌ Not enough balance! Complete tasks on your calendar to earn gremlin coins.");
         return;
     }
 
@@ -287,7 +271,7 @@ window.toggleEquip = async function(itemName) {
 function updateStatsDisplay() {
     const balanceDisplay = document.getElementById("balanceDisplay");
     if (balanceDisplay) {
-        balanceDisplay.textContent = `$${balance.toFixed(2)}`;
+        balanceDisplay.innerHTML = `<img src="assets/images/gremlin_coin.png" class="coin-icon" alt="coin"> ${Math.floor(balance)}`;
     }
 
     const emotionFill = document.getElementById("emotionFill");
