@@ -216,7 +216,7 @@ function renderCalendar() {
             // Limit preview to 3 items to avoid overflows
             daySchedule.slice(0, 3).forEach(task => {
                 const completedClass = task.completed ? "completed" : "";
-                const dotStyle = task.color ? `style="border-left-color: ${task.color};"` : "";
+                const dotStyle = task.color ? `style="border-left-color: ${task.color}; color: ${task.color};"` : "";
                 html += `<div class="task-dot ${completedClass}" ${dotStyle}>${task.name}</div>`;
             });
             if (daySchedule.length > 3) {
