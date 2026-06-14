@@ -191,7 +191,9 @@ function initializeUsername(user) {
     username.addEventListener("blur", async () => {
         username.contentEditable = "false";
 
-        const newName = username.textContent.trim() || "User";
+        let newName = username.textContent.trim() || "User";
+        // Limit to 30 characters
+        newName = newName.slice(0, 30);
 
         localStorage.setItem("fgUsername", newName);
         username.textContent = newName;
