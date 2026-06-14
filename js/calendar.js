@@ -402,6 +402,21 @@ function renderBlockedTimeSlot(timeIndex, dateKey, blockedSlots) {
     let coveringBlock = null;
     for (let block of blockedSlots) {
         if (!(slotEnd <= block.start || slotStart >= block.end)) {
+            // Check if this is a recurring block that has an exemption for today
+            if (block.type === "recurring") {
+                const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
+                const hasExemption = blocked.some(b => 
+                    b.type === "exemption" &&
+                    b.date === dateKey &&
+                    b.originalBlockStart === block.start &&
+                    b.originalBlockEnd === block.end
+                );
+                
+                if (hasExemption) {
+                    continue; // Skip this block, it's exempted for today
+                }
+            }
+            
             coveringBlock = block;
             break;
         }
