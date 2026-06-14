@@ -1,7 +1,16 @@
 <header class="app-header">
     <h1 class="glow-text">Feral Gremlin</h1>
     <div class="greeting">
-        <span style="pointer-events: none;">Hello, <span id="username" class="editable-name" contenteditable="false" spellcheck="false">User</span>!</span>
+        <span class="username-wrapper">
+            <span id="username" class="editable-name" contenteditable="false" spellcheck="false">User</span>
+            
+            <button id="editUsernameBtn" class="edit-username-btn" aria-label="Edit username">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                </svg>
+            </button>
+        </span>
         <button id="logoutBtn" class="logout-btn">Log Out</button>
     </div>
 </header>
