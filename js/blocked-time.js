@@ -103,6 +103,12 @@ async function handleBlockedTimeSubmit(e) {
         }
         blockRecord.date = date;
     } else if (type === "recurring") {
+        const startDate = document.getElementById("recurringStartDateSchedule-Input").value;
+        if (!startDate) {
+            alert("Please select a start date.");
+            return;
+        }
+
         const frequency = document.getElementById("frequencySchedule-Select").value;
         const dayCheckboxes = document.querySelectorAll(".weekdaySchedule-picker input[type='checkbox']:checked");
         
@@ -114,6 +120,7 @@ async function handleBlockedTimeSubmit(e) {
         const days = Array.from(dayCheckboxes).map(cb => cb.value);
         blockRecord.frequency = frequency;
         blockRecord.days = days;
+        blockRecord.startDate = startDate;
     }
 
     // Save to localStorage
@@ -184,9 +191,12 @@ function isTimeBlockedForDate(date, startMinutes, endMinutes) {
             const dayCode = shortDayMap[dayName];
             
             if (block.days.includes(dayCode)) {
-                // Check for time overlap
-                if (!(endMinutes <= block.start || startMinutes >= block.end)) {
-                    return true;
+                // Check if date falls on the correct frequency cycle
+                if (isDateInRecurringCycle(date, block.startDate, block.frequency)) {
+                    // Check for time overlap
+                    if (!(endMinutes <= block.start || startMinutes >= block.end)) {
+                        return true;
+                    }
                 }
             }
         }
