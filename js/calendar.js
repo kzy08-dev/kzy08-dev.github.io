@@ -361,7 +361,20 @@ function getBlockedSlotsForDate(dateKey) {
         else if (block.type === "recurring") {
             const dayName = getDayNameFromDateKey(dateKey);
             if (block.days.includes(dayName)) {
-                applicableBlocks.push(block);
+                // Check if this date falls on the correct frequency cycle
+                if (isDateInRecurringCycle(dateKey, block.startDate, block.frequency)) {
+                    // Also check if this specific date/time is exempted
+                    const isExempt = blocked.some(b =>
+                        b.type === "exemption" &&
+                        b.date === dateKey &&
+                        b.originalBlockStart === block.start &&
+                        b.originalBlockEnd === block.end
+                    );
+                    
+                    if (!isExempt) {
+                        applicableBlocks.push(block);
+                    }
+                }
             }
         }
     }
