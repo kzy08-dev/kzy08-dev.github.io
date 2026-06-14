@@ -450,6 +450,34 @@ body {
     transition: all 0.2s;
 }
 
+.username-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.edit-username-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    transition: color 0.2s ease,
+                transform 0.2s ease;
+}
+
+.edit-username-btn:hover {
+    color: var(--primary-main);
+    transform: scale(1.1);
+}
+
+.edit-username-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
 .editable-name:focus {
     outline: none;
     border-bottom-color: var(--primary-main);
