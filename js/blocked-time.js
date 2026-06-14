@@ -230,9 +230,14 @@ function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
 }
 
 // Check if a date falls within a recurring cycle starting from startDate
+// Check if a date falls within a recurring cycle starting from startDate
 function isDateInRecurringCycle(checkDate, startDate, frequency) {
     const start = new Date(startDate);
     const check = new Date(checkDate);
+    
+    // Set times to midnight for accurate comparison
+    start.setHours(0, 0, 0, 0);
+    check.setHours(0, 0, 0, 0);
     
     // Calculate the number of days between start and check date
     const diffMs = check - start;
@@ -240,7 +245,16 @@ function isDateInRecurringCycle(checkDate, startDate, frequency) {
     
     if (diffDays < 0) return false; // Check date is before start date
     
-    const frequencyDays = frequency === "weekly" ? 7 : frequency === "bi-weekly" ? 14 : 21;
+    let frequencyDays;
+    if (frequency === "weekly") {
+        frequencyDays = 7;
+    } else if (frequency === "bi-weekly") {
+        frequencyDays = 14;
+    } else if (frequency === "triweekly") {
+        frequencyDays = 21;
+    } else {
+        frequencyDays = 7; // Default to weekly
+    }
     
     // Check if the difference is divisible by the frequency interval
     return diffDays % frequencyDays === 0;
