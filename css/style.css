@@ -206,15 +206,21 @@ body {
 }
 
 .password-toggle {
-    font-size: 1.1rem;
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
     color: var(--text-dim);
-    transition: color 0.2s ease,
-                transform 0.2s ease;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
 }
 
 .password-toggle:hover {
-    color: var(--primary-main);
-    transform: scale(1.05);
+    color: var(--text-light);
 }
 
 .auth-submit-btn {
