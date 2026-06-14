@@ -347,6 +347,32 @@ function getDayNameFromDateKey(dateKey) {
     return dayNames[dayIndex];
 }
 
+function isDateInRecurringCycle(checkDate, startDate, frequency) {
+    const start = new Date(startDate);
+    const check = new Date(checkDate);
+    
+    start.setHours(0, 0, 0, 0);
+    check.setHours(0, 0, 0, 0);
+    
+    const diffMs = check - start;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return false;
+    
+    let frequencyDays;
+    if (frequency === "weekly") {
+        frequencyDays = 7;
+    } else if (frequency === "bi-weekly") {
+        frequencyDays = 14;
+    } else if (frequency === "triweekly") {
+        frequencyDays = 21;
+    } else {
+        frequencyDays = 7;
+    }
+    
+    return diffDays % frequencyDays === 0;
+}
+
 function getBlockedSlotsForDate(dateKey) {
     // Returns array of all blocked time blocks for this specific date
     const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
@@ -388,22 +414,24 @@ function isTimeSlotBlocked(timeIndex, blockedSlots) {
     const slotEnd = timeIndex + 30;
     const dateKey = document.getElementById("scheduleModal").dataset.dateKey;
 
-    // Check for exemptions first
-    const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
-    const hasExemption = blocked.some(block => 
-        block.type === "exemption" && block.date === dateKey
-    );
-    
-    if (hasExemption) {
-        return false;
-    }
-
     for (let block of blockedSlots) {
         // Check for overlap
         if (!(slotEnd <= block.start || slotStart >= block.end)) {
-            return true;
+            // Check if this specific time is exempted
+            const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
+            const isExempt = blocked.some(b =>
+                b.type === "exemption" &&
+                b.date === dateKey &&
+                b.originalBlockStart === block.start &&
+                b.originalBlockEnd === block.end
+            );
+            
+            if (!isExempt) {
+                return true;
+            }
         }
     }
+    
     return false;
 }
 
