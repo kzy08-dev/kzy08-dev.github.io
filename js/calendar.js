@@ -5,6 +5,8 @@ let emotionLevel = Number(localStorage.getItem("fgEmotionLevel")) || 50;
 
 let currentAudio = null;
 let currentPlayingId = null;
+let currentYouTubeIframe = null;
+let currentYouTubePlayingId = null;
 
 let autoPlayCheckInterval = null;
 let autoPlayingTaskIds = new Set();
@@ -617,10 +619,6 @@ function attachTaskButtons() {
             renderCalendar();
         });
     });
-    
-    // Global variables to track YouTube iframe playback
-    let currentYouTubeIframe = null;
-    let currentYouTubePlayingId = null;
 
     document.querySelectorAll(".play-btn").forEach(btn => {
         btn.addEventListener("click", () => {
