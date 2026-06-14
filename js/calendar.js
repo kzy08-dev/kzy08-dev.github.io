@@ -470,7 +470,7 @@ function attachBlockRemovalButtons() {
             let blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
             
             if (blockType === "specific") {
-                // For specific blocks, remove the entire block entry
+                // For specific blocks, remove only this exact block entry
                 blocked = blocked.filter(block => !(
                     block.type === "specific" &&
                     block.date === dateKey &&
@@ -478,7 +478,7 @@ function attachBlockRemovalButtons() {
                     block.end === blockEnd
                 ));
             } else if (blockType === "recurring") {
-                // For recurring blocks, create an exemption for this date
+                // For recurring blocks, create an exemption for this specific time slot on this date
                 const exemptionRecord = {
                     type: "exemption",
                     date: dateKey,
