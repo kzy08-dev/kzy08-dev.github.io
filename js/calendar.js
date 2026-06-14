@@ -6,6 +6,9 @@ let emotionLevel = Number(localStorage.getItem("fgEmotionLevel")) || 50;
 let currentAudio = null;
 let currentPlayingId = null;
 
+let autoPlayCheckInterval = null;
+let autoPlayingTaskIds = new Set();
+
 const rewardMessages = [
     "Yay, you did it! You earned",
     "Great work! You earned",
@@ -154,6 +157,7 @@ function initializeCalendar() {
     document.getElementById("prevMonth").addEventListener("click", previousMonth);
     document.getElementById("nextMonth").addEventListener("click", nextMonth);
     document.getElementById("closeModal").addEventListener("click", closeModal);
+    initializeAutoPlayMonitoring();
 }
 
 /* CHANGING MONTHS */
@@ -621,20 +625,30 @@ function attachTaskButtons() {
     document.querySelectorAll(".play-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const id = parseInt(btn.dataset.id);
+            
+            // If this task is currently auto-playing, just pause it
+            if (autoPlayingTaskIds.has(id) && currentPlayingId === id) {
+                if (currentAudio) {
+                    currentAudio.pause();
+                } else if (currentYouTubeIframe) {
+                    currentYouTubeIframe.src = "";
+                }
+                autoPlayingTaskIds.delete(id);
+                currentPlayingId = null;
+                return;
+            }
+            
+            // Otherwise, handle normal play button logic (existing code)
             const musicType = getTaskMusicType(id);
     
-            // Scenario A: Custom playlist
             if (musicType !== "default") {
                 playFromCustomPlaylist(id);
                 return;
             }
     
-            // Scenario B: Default track selection
-            // Determine which track to play based on the task's ID index
             const trackIndex = id % audioFiles.length;
             const selectedTrackSrc = audioFiles[trackIndex];
     
-            // 1. If clicking the SAME button that is already active -> Toggle Play/Pause
             if (currentPlayingId === id && currentAudio) {
                 if (currentAudio.paused) {
                     currentAudio.play();
@@ -644,30 +658,27 @@ function attachTaskButtons() {
                 return;
             }
     
-            // 2. If a DIFFERENT button was clicked while audio was playing -> Stop old audio
             if (currentAudio) {
                 currentAudio.pause();
             }
     
-            // Stop YouTube playback if any
             if (currentYouTubeIframe) {
                 currentYouTubeIframe.remove();
                 currentYouTubeIframe = null;
                 currentYouTubePlayingId = null;
             }
     
-            // 3. Setup and play the new audio track
             currentAudio = new Audio(selectedTrackSrc);
             currentPlayingId = id;
             currentAudio.play();
     
-            // Reset button UI automatically when the track finishes playing naturally
             currentAudio.addEventListener("ended", () => {
                 currentAudio = null;
                 currentPlayingId = null;
             });
         });
     });
+
     
     // NEW FUNCTION: Play from custom playlist
     function playFromCustomPlaylist(taskId) {
@@ -1065,4 +1076,131 @@ if (scheduleBackdrop) {
             scheduleBackdrop.style.display = "none";
         }
     });
+}
+
+// Initialize auto-play monitoring when calendar loads
+function initializeAutoPlayMonitoring() {
+    // Run check immediately
+    checkAndAutoPlayTasks();
+    
+    // Check every 30 seconds for time changes
+    autoPlayCheckInterval = setInterval(checkAndAutoPlayTasks, 30000);
+}
+
+// Check current time and auto-play tasks that match
+function checkAndAutoPlayTasks() {
+    const now = new Date();
+    const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
+    
+    // Get today's date key
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayKey = `${year}-${month}-${day}`;
+    
+    const todayTasks = schedules[todayKey]?.tasks || [];
+    
+    todayTasks.forEach(task => {
+        // Check if task should be playing now
+        const taskStartTime = task.start; // in minutes (e.g., 510 = 8:30 AM)
+        const taskEndTime = task.end;
+        const isTaskTimeWindow = currentTimeInMinutes >= taskStartTime && currentTimeInMinutes < taskEndTime;
+        
+        // If current time matches task time and task isn't already auto-playing
+        if (isTaskTimeWindow && !autoPlayingTaskIds.has(task.id)) {
+            triggerAutoPlay(task);
+        }
+        
+        // Stop auto-play if we've moved past the task time window
+        if (!isTaskTimeWindow && autoPlayingTaskIds.has(task.id)) {
+            stopAutoPlay(task.id);
+        }
+    });
+}
+
+// Trigger auto-play for a specific task
+function triggerAutoPlay(task) {
+    const musicType = task.musicType || "default";
+    
+    // Stop any currently playing audio first
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+    if (currentYouTubeIframe) {
+        currentYouTubeIframe.remove();
+        currentYouTubeIframe = null;
+    }
+    
+    // Scenario A: Custom playlist
+    if (musicType !== "default") {
+        const playlist = JSON.parse(localStorage.getItem("feralGremlinPlaylist")) || [];
+        if (playlist.length === 0) return;
+        
+        const songIndex = task.id % playlist.length;
+        const selectedSong = playlist[songIndex];
+        
+        if (selectedSong.type === "youtube") {
+            currentYouTubeIframe = document.createElement("iframe");
+            currentYouTubeIframe.style.width = "0";
+            currentYouTubeIframe.style.height = "0";
+            currentYouTubeIframe.style.border = "none";
+            
+            const src = buildYouTubeUrl(selectedSong.source);
+            currentYouTubeIframe.src = src;
+            currentYouTubeIframe.allow = "autoplay";
+            currentYouTubeIframe.dataset.isPlaying = "true";
+            currentYouTubeIframe.dataset.autoPlayTaskId = task.id;
+            
+            document.body.appendChild(currentYouTubeIframe);
+        } else if (selectedSong.type === "audio") {
+            currentAudio = new Audio(selectedSong.source);
+            currentAudio.dataset.autoPlayTaskId = task.id;
+            currentAudio.play().catch(e => console.warn("Auto-play prevented:", e));
+            
+            currentAudio.addEventListener("ended", () => {
+                if (autoPlayingTaskIds.has(task.id)) {
+                    autoPlayingTaskIds.delete(task.id);
+                }
+                currentAudio = null;
+            });
+        }
+    } 
+    // Scenario B: Default track selection
+    else {
+        const trackIndex = task.id % audioFiles.length;
+        const selectedTrackSrc = audioFiles[trackIndex];
+        
+        currentAudio = new Audio(selectedTrackSrc);
+        currentAudio.dataset.autoPlayTaskId = task.id;
+        currentAudio.play().catch(e => console.warn("Auto-play prevented:", e));
+        
+        currentAudio.addEventListener("ended", () => {
+            if (autoPlayingTaskIds.has(task.id)) {
+                autoPlayingTaskIds.delete(task.id);
+            }
+            currentAudio = null;
+        });
+    }
+    
+    currentPlayingId = task.id;
+    autoPlayingTaskIds.add(task.id);
+}
+
+// Stop auto-play for a task
+function stopAutoPlay(taskId) {
+    if (currentAudio && currentAudio.dataset?.autoPlayTaskId == taskId) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+    if (currentYouTubeIframe && currentYouTubeIframe.dataset?.autoPlayTaskId == taskId) {
+        currentYouTubeIframe.remove();
+        currentYouTubeIframe = null;
+    }
+    if (currentPlayingId === taskId) {
+        currentPlayingId = null;
+    }
+    autoPlayingTaskIds.delete(taskId);
 }
