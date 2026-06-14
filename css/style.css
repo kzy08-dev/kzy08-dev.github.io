@@ -360,11 +360,15 @@ body {
     padding: 14px 0;
 }
 
+.sidebar.collapsed .nav-link .icon {
+    font-size: 1.5rem;
+}
+
 .nav-link span {
     transition: opacity 0.3s;
 }
 
-.sidebar.collapsed .nav-link span {
+.sidebar.collapsed .nav-link .text {
     display: none;
 }
 
