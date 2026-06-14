@@ -220,3 +220,20 @@ function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
     }
     return false;
 }
+
+// Check if a date falls within a recurring cycle starting from startDate
+function isDateInRecurringCycle(checkDate, startDate, frequency) {
+    const start = new Date(startDate);
+    const check = new Date(checkDate);
+    
+    // Calculate the number of days between start and check date
+    const diffMs = check - start;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return false; // Check date is before start date
+    
+    const frequencyDays = frequency === "weekly" ? 7 : frequency === "bi-weekly" ? 14 : 21;
+    
+    // Check if the difference is divisible by the frequency interval
+    return diffDays % frequencyDays === 0;
+}
