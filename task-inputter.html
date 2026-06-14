@@ -115,29 +115,34 @@
             </div>
           </div>
     
-          <div id="recurringSchedule-Section" class="conditionalSchedule-section" style="display: none;">
-            <div class="formSchedule-group">
-              <label for="frequencySchedule-Select">Frequency</label>
-              <select id="frequencySchedule-Select" class="modalTaskSchedule-Input">
-                <option value="weekly">Weekly</option>
-                <option value="bi-weekly">Bi-weekly</option>
-                <option value="tri-weekly">Tri-weekly</option>
-              </select>
-            </div>
+            <div id="recurringSchedule-Section" class="conditionalSchedule-section" style="display: none;">
+              <div class="formSchedule-group">
+                <label for="recurringStartDateSchedule-Input">Start Date</label>
+                <input type="date" id="recurringStartDateSchedule-Input" class="modalTaskSchedule-Input">
+              </div>
             
-            <div class="formSchedule-group">
-              <label class="sectionSchedule-label">Repeat Days</label>
-              <div class="weekdaySchedule-picker">
-                <label class="daySchedule-btn"><input type="checkbox" value="M"><span>M</span></label>
-                <label class="daySchedule-btn"><input type="checkbox" value="T"><span>T</span></label>
-                <label class="daySchedule-btn"><input type="checkbox" value="W"><span>W</span></label>
-                <label class="daySchedule-btn"><input type="checkbox" value="TH"><span>Th</span></label>
-                <label class="daySchedule-btn"><input type="checkbox" value="F"><span>F</span></label>
-                <label class="daySchedule-btn"><input type="checkbox" value="SA"><span>Sa</span></label>
-                <label class="daySchedule-btn"><input type="checkbox" value="SU"><span>Su</span></label>
+              <div class="formSchedule-group">
+                <label for="frequencySchedule-Select">Frequency</label>
+                <select id="frequencySchedule-Select" class="modalTaskSchedule-Input">
+                  <option value="weekly">Weekly</option>
+                  <option value="bi-weekly">Bi-weekly</option>
+                  <option value="tri-weekly">Tri-weekly</option>
+                </select>
+              </div>
+              
+              <div class="formSchedule-group">
+                <label class="sectionSchedule-label">Repeat Days</label>
+                <div class="weekdaySchedule-picker">
+                  <label class="daySchedule-btn"><input type="checkbox" value="M"><span>M</span></label>
+                  <label class="daySchedule-btn"><input type="checkbox" value="T"><span>T</span></label>
+                  <label class="daySchedule-btn"><input type="checkbox" value="W"><span>W</span></label>
+                  <label class="daySchedule-btn"><input type="checkbox" value="TH"><span>Th</span></label>
+                  <label class="daySchedule-btn"><input type="checkbox" value="F"><span>F</span></label>
+                  <label class="daySchedule-btn"><input type="checkbox" value="SA"><span>Sa</span></label>
+                  <label class="daySchedule-btn"><input type="checkbox" value="SU"><span>Su</span></label>
+                </div>
               </div>
             </div>
-          </div>
     
           <div class="timeRangeSchedule-grid">
             <div class="formSchedule-group">
