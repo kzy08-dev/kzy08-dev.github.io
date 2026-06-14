@@ -1306,6 +1306,8 @@ tr:hover td {
 
 .priority-box {
     flex: 1;
+    width: 0;
+    min-width: 0;
     background: var(--bg-card);
     border: 1px solid var(--border-light);
     border-radius: 20px;
@@ -1337,6 +1339,7 @@ tr:hover td {
 
 .task-dropzone {
     flex: 1;
+    min-width: 0;
     min-height: 350px;
     border-radius: 12px;
     border: 2px dashed rgba(255, 255, 255, 0.05);
@@ -1364,6 +1367,11 @@ tr:hover td {
     justify-content: space-between;
     align-items: center;
     min-width: 0; 
+}
+
+.task-card > div[style*="flex: 1"] {
+    min-width: 0; 
+    overflow: hidden;
 }
 
 .task-color-btn {
