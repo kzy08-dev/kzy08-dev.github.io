@@ -1359,10 +1359,9 @@ tr:hover td {
     margin-bottom: 12px;
     cursor: grab;
     transition: all 0.2s;
-    position: relative;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    min-width: 0; 
 }
 
 .task-color-btn {
@@ -1429,6 +1428,9 @@ tr:hover td {
     font-weight: 600;
     font-size: 1rem;
     margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .task-duration {
