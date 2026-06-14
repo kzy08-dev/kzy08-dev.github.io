@@ -168,18 +168,44 @@ window.updateEmotionFromCurrentWeek = function() {
 /* USERNAME */
 function initializeUsername(user) {
     const username = document.getElementById("username");
-    if (!username) return;
+    const editBtn = document.getElementById("editUsernameBtn");
 
-    username.textContent = localStorage.getItem("fgUsername") || "User";
+    if (!username || !editBtn) return;
+
+    username.textContent =
+        localStorage.getItem("fgUsername") ||
+        user.displayName ||
+        "User";
+
+    editBtn.addEventListener("click", () => {
+        username.contentEditable = "true";
+        username.focus();
+
+        const range = document.createRange();
+        range.selectNodeContents(username);
+
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    });
 
     username.addEventListener("blur", async () => {
+        username.contentEditable = "false";
+
         const newName = username.textContent.trim() || "User";
+
         localStorage.setItem("fgUsername", newName);
         username.textContent = newName;
-        
-        // Auto-save name to cloud
+
         if (window.firebaseHelper) {
             await window.firebaseHelper.syncLocalToFirebase();
+        }
+    });
+
+    username.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            username.blur();
         }
     });
 }
