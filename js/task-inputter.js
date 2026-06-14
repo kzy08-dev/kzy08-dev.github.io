@@ -406,6 +406,11 @@ function applyBlockedTime(windows, date) {
         if (block.type === "recurring") {
             const day = getDayName(date);
             if (block.days.includes(day)) {
+                // Check if this date falls on the correct frequency cycle
+                if (!isDateInRecurringCycle(date, block.startDate, block.frequency)) {
+                    continue;
+                }
+                
                 // Check if this recurring block is exempted for this date
                 if (isBlockExempt(date, block.start, block.end, "recurring")) {
                     continue;
