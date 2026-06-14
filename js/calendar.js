@@ -542,12 +542,12 @@ function attachTaskButtons() {
             // Audio reinforcement
             playSuccessChime();
     
-            // Spawn visual rewards at click coordinates
+            // Spawn visual s at click coordinates
             spawnFloatingCoin(e);
             spawnConfetti(e.clientX, e.clientY);
     
-            // Reward metrics updates - ensure this completes before refreshing
-            await showRewardMessage(taskPriority);
+            //  metrics updates - ensure this completes before refreshing
+            await showMessage(taskPriority);
             await increaseEmotionMeter(taskPriority);
             
             // Refresh table and main calendar cell previews
@@ -752,14 +752,14 @@ function getTaskMusicType(id) {
     return "default";
 }
 
-/* COINS & REWARDS */
-function getRewardByPriority(priority) {
-    const rewardMap = {
+/* COINS & S */
+function getByPriority(priority) {
+    const Map = {
         "high": 5,
         "medium": 2,
         "low": 0.5
     };
-    return rewardMap[priority.toLowerCase()] || 2;
+    return Map[priority.toLowerCase()] || 2;
 }
 
 async function showRewardMessage(priority) {
@@ -771,7 +771,7 @@ async function showRewardMessage(priority) {
     }
 
     const message = rewardMessages[Math.floor(Math.random() * rewardMessages.length)];
-    toast.innerHTML = `${message} +<img src="assets/images/gremlin_coin.png" class="coin-icon" alt="coin"> ${amount}!`;
+    toast.innerHTML = `${message} +${amount} <img src="assets/images/gremlin_coin.png" class="coin-icon" alt="coin">!`;
     
     // Ensure any previous "show" class is removed before adding it again
     toast.classList.remove("show");
