@@ -168,16 +168,15 @@ window.updateEmotionFromCurrentWeek = function() {
 /* USERNAME */
 function initializeUsername(user) {
     const username = document.getElementById("username");
-    const editBtn = document.getElementById("editUsernameBtn");
 
-    if (!username || !editBtn) return;
+    if (!username) return;
 
     username.textContent =
         localStorage.getItem("fgUsername") ||
         user.displayName ||
         "User";
 
-    editBtn.addEventListener("click", () => {
+    username.addEventListener("click", () => {
         username.contentEditable = "true";
         username.focus();
 
