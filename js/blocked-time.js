@@ -164,6 +164,7 @@ function getDayNameFromDate(dateStr) {
 }
 
 // Check if time slot is blocked for a specific date
+// Check if time slot is blocked for a specific date
 function isTimeBlockedForDate(date, startMinutes, endMinutes) {
     const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
     
@@ -198,6 +199,13 @@ function isTimeBlockedForDate(date, startMinutes, endMinutes) {
                         return true;
                     }
                 }
+            }
+        }
+
+        // Exemption check
+        if (block.type === "exemption" && block.date === date) {
+            if (!(endMinutes <= block.originalBlockStart || startMinutes >= block.originalBlockEnd)) {
+                return false; // This time is exempted
             }
         }
     }
@@ -236,4 +244,22 @@ function isDateInRecurringCycle(checkDate, startDate, frequency) {
     
     // Check if the difference is divisible by the frequency interval
     return diffDays % frequencyDays === 0;
+}
+
+// Generate all occurrences of a recurring block up to a specified date range
+function getRecurringBlockOccurrences(block, upToDate) {
+    const occurrences = [];
+    const startDate = new Date(block.startDate);
+    const endDate = new Date(upToDate);
+    
+    const frequencyDays = block.frequency === "weekly" ? 7 : block.frequency === "bi-weekly" ? 14 : 21;
+    
+    let currentDate = new Date(startDate);
+    
+    while (currentDate <= endDate) {
+        occurrences.push(currentDate.toISOString().split('T')[0]);
+        currentDate.setDate(currentDate.getDate() + frequencyDays);
+    }
+    
+    return occurrences;
 }
