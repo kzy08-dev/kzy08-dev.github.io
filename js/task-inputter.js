@@ -378,6 +378,47 @@ function getDayName(dateStr) {
     return dayNames[dayIndex];
 }
 
+function isDateInRecurringCycle(checkDate, startDate, frequency) {
+    const start = new Date(startDate);
+    const check = new Date(checkDate);
+    
+    start.setHours(0, 0, 0, 0);
+    check.setHours(0, 0, 0, 0);
+    
+    const diffMs = check - start;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return false;
+    
+    let frequencyDays;
+    if (frequency === "weekly") {
+        frequencyDays = 7;
+    } else if (frequency === "bi-weekly") {
+        frequencyDays = 14;
+    } else if (frequency === "triweekly") {
+        frequencyDays = 21;
+    } else {
+        frequencyDays = 7;
+    }
+    
+    return diffDays % frequencyDays === 0;
+}
+        
+function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
+    const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
+    
+    for (let block of blocked) {
+        if (block.type === "exemption" && 
+            block.date === dateKey && 
+            block.originalBlockStart === blockStart && 
+            block.originalBlockEnd === blockEnd &&
+            block.originalBlockType === blockType) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /* Base schedule window: 7 AM (420 min) to 11 PM (1380 min) */
 function createBaseWindow() {
     return [
