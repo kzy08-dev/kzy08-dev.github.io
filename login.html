@@ -86,9 +86,15 @@
 
             // Toggle password visibility
             passwordToggle.addEventListener("click", () => {
-                const type = authPassword.getAttribute("type") === "password" ? "text" : "password";
+                const type = authPassword.getAttribute("type") === "password"
+                    ? "text"
+                    : "password";
+                
                 authPassword.setAttribute("type", type);
-                passwordToggle.textContent = type === "password" ? "👁️" : "🙈";
+                
+                passwordToggle.innerHTML = type === "password"
+                    ? '<i class="fa-regular fa-eye"></i>'
+                    : '<i class="fa-regular fa-eye-slash"></i>';
             });
 
             // Toggle form mode
