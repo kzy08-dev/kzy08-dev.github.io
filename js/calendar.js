@@ -542,12 +542,12 @@ function attachTaskButtons() {
             // Audio reinforcement
             playSuccessChime();
     
-            // Spawn visual s at click coordinates
+            // Spawn visual rewards at click coordinates
             spawnFloatingCoin(e);
             spawnConfetti(e.clientX, e.clientY);
     
-            //  metrics updates - ensure this completes before refreshing
-            await showMessage(taskPriority);
+            // Reward metrics updates - ensure this completes before refreshing
+            await showRewardMessage(taskPriority);
             await increaseEmotionMeter(taskPriority);
             
             // Refresh table and main calendar cell previews
@@ -752,14 +752,14 @@ function getTaskMusicType(id) {
     return "default";
 }
 
-/* COINS & S */
-function getByPriority(priority) {
-    const Map = {
+/* COINS & REWARDS */
+function getRewardByPriority(priority) {
+    const rewardMap = {
         "high": 5,
         "medium": 2,
         "low": 0.5
     };
-    return Map[priority.toLowerCase()] || 2;
+    return rewardMap[priority.toLowerCase()] || 2;
 }
 
 async function showRewardMessage(priority) {
