@@ -89,7 +89,9 @@ function initializeUsername(user) {
     username.textContent = localStorage.getItem("fgUsername") || "User";
 
     username.addEventListener("blur", async () => {
-        const newName = username.textContent.trim() || "User";
+        let newName = username.textContent.trim() || "User";
+        // Limit to 30 characters
+        newName = newName.slice(0, 30);
         localStorage.setItem("fgUsername", newName);
         username.textContent = newName;
         
