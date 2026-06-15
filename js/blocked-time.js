@@ -250,7 +250,7 @@ function isDateInRecurringCycle(checkDate, startDate, frequency) {
         frequencyDays = 7;
     } else if (frequency === "bi-weekly") {
         frequencyDays = 14;
-    } else if (frequency === "triweekly") {
+    } else if (frequency === "tri-weekly") {
         frequencyDays = 21;
     } else {
         frequencyDays = 7; // Default to weekly
