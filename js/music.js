@@ -17,6 +17,7 @@ function getPlaylist() {
     return JSON.parse(localStorage.getItem("feralGremlinPlaylist")) || [];
 }
 
+// Saves the playlist to the Firebase database
 function savePlaylist(list) {
     localStorage.setItem("feralGremlinPlaylist", JSON.stringify(list));
     
@@ -26,6 +27,7 @@ function savePlaylist(list) {
     }
 }
 
+// For each song saved, creates the card that appears on the playlist to have the name, play buttons, etc
 function renderPlaylist() {
     if (!playlistContainer) return;
     const songs = getPlaylist();
@@ -146,6 +148,7 @@ if (saveSongBtn) {
 }
 
 /* PLAY AUDIO & YOUTUBE */
+// When the button is pressed, toggle between playing and not playing, play and pause visuals
 window.togglePlay = function(index) {
     const songs = getPlaylist();
     const song = songs[index];
@@ -229,7 +232,7 @@ window.togglePlay = function(index) {
         currentlyPlaying.pause();
     }
 
-    // NEW: Remove any playing YouTube iframe when switching to audio
+    // Remove any playing YouTube iframe when switching to audio
     if (currentYouTubeIframe) {
         currentYouTubeIframe.remove();
         currentYouTubeIframe = null;
