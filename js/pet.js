@@ -1,6 +1,5 @@
-// store database with emojis and pricing
+// Store database with emojis and pricing
 const storeItems = [
-
     // TOYS
     { name: "Tennis Ball", category: "Toy", price: 3.00, emoji: "🎾", description: "A bouncing yellow ball" },
     { name: "Rope Toy", category: "Toy", price: 5.00, emoji: "🧶", description: "Sturdy braided rope for tugging" },
@@ -20,6 +19,7 @@ let petChoice = localStorage.getItem("fgPetChoice") || "puppy";
 let purchasedItems = JSON.parse(localStorage.getItem("fgPurchasedItems")) || [];
 let equippedItems = JSON.parse(localStorage.getItem("fgEquippedItems")) || { Clothing: null, Toy: null, Food: null };
 
+// Loads the pet page and all of the different data about the pets specifically
 document.addEventListener("DOMContentLoaded", () => {
     initializePetPage();
 
@@ -76,6 +76,7 @@ function setupPetSelectors() {
     });
 }
 
+// Updates the buttons for the pet, depending on which one the user picks (puppy, turtle, or dragon)
 function updatePetSelectorUI() {
     const buttons = document.querySelectorAll(".pet-opt-btn");
     buttons.forEach(btn => {
@@ -88,6 +89,7 @@ function updatePetSelectorUI() {
 }
 
 /* UPDATE PET IMAGE AND EMOJI OVERLAYS */
+// When equipping items, the images are overlaid on top of each other to create the visual effect
 function updatePetAppearance() {
     const petImage = document.getElementById("petImage");
     if (!petImage) return;
@@ -129,6 +131,7 @@ function setupEquipmentToggles() {
     document.getElementById("foodEquipBtn").addEventListener("click", () => toggleCategory("Food"));
 }
 
+// Allows the user to pick which items they'd like to equip if they buy it
 function toggleCategory(category) {
     // Find purchased items in this category
     const owned = storeItems.filter(item => item.category === category && purchasedItems.includes(item.name));
@@ -154,6 +157,7 @@ function toggleCategory(category) {
     renderStore();
 }
 
+// Updates the equipment buttons if the user presses on them
 function updateEquipmentToggleButtons() {
     const toyBtn = document.getElementById("toyEquipBtn");
     const foodBtn = document.getElementById("foodEquipBtn");
@@ -268,6 +272,7 @@ window.toggleEquip = async function(itemName) {
 };
 
 /* DISPLAY REFRESH */
+// Changes the pet's images based on the emotion level and also updates the balance if the user has earned more money
 function updateStatsDisplay() {
     const balanceDisplay = document.getElementById("balanceDisplay");
     if (balanceDisplay) {
@@ -284,6 +289,7 @@ function updateStatsDisplay() {
     }
 }
 
+// Lets the pet name be unique to each pet, storing it in an array
 function initializePetName() {
     const petNameInput = document.getElementById("petName");
     if (!petNameInput) return;
@@ -402,6 +408,7 @@ function playBuyChime() {
     } catch (e) {}
 }
 
+// Sound effect for when the user equips an item on them pet
 function playEquipChime(freq) {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
