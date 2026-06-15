@@ -159,6 +159,7 @@ window.togglePlay = function(index) {
                 // Pause by stopping the iframe
                 currentYouTubeIframe.src = ""; // Clear src to stop playback
                 currentYouTubeIframe.dataset.isPlaying = "false";
+                renderPlaylist();
             } else {
                 // Resume by reloading the iframe
                 const src = song.source.includes("?") 
@@ -166,11 +167,10 @@ window.togglePlay = function(index) {
                     : song.source + "?autoplay=1&controls=0";
                 currentYouTubeIframe.src = src;
                 currentYouTubeIframe.dataset.isPlaying = "true";
+                renderPlaylist();
             }
-            renderPlaylist();
             return;
         }
-
         // Stop any currently playing audio
         if (currentlyPlaying) {
             currentlyPlaying.pause();
