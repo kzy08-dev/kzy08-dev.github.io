@@ -22,6 +22,7 @@ function waitForTaskPage() {
     }, 50);
 }
 
+// Sets up all the boxes and modals for the task inputter so the user can use it
 function initializeTaskInputter() {
     setupModal();
     setupDragDrop();
@@ -63,6 +64,7 @@ function closeModal() {
     }
 }
 
+// Allows the user to enter in details of a task, including name, duration, start times, and picking recurrence and music choice
 function createTask() {
     const name = document.getElementById("taskName").value.trim();
     const duration = parseInt(document.getElementById("taskDuration").value);
@@ -103,6 +105,7 @@ function createTask() {
     closeModal();
 }
 
+// Allows the user to color code their task if they wish
 function openColorPicker(btn, taskId) {
     if (window.event) window.event.stopPropagation();
 
@@ -161,6 +164,7 @@ function openColorPicker(btn, taskId) {
     document.addEventListener("click", window._colorPickerCloseHandler);
 }
 
+// Sets the color of the task when it appears in the priority box
 function setTaskColor(taskId, color) {
     const task = tasks.find(t => t.id === taskId);
     if (task) {
@@ -181,6 +185,7 @@ function setTaskColor(taskId, color) {
     }
 }
 
+// Renders the task card as it will appear in the priority box
 function renderTaskCard(task) {
     const card = document.createElement("div");
     card.className = "task-card";
@@ -204,6 +209,7 @@ function renderTaskCard(task) {
     document.getElementById("highTasks").appendChild(card);
 }
 
+// Allows the user to drag and drop the task cards so it sorts out into priority level, which is accounted for in scheduling
 function setupDragDrop() {
     document.querySelectorAll(".task-dropzone").forEach(zone => {
         zone.addEventListener("dragover", e => {
@@ -234,6 +240,7 @@ function setupDragDrop() {
     });
 }
 
+// Allows the card to listen for if the user is going to drag the card around
 function addDragEvents(card) {
     card.addEventListener("dragstart", () => {
         card.classList.add("dragging");
@@ -244,6 +251,7 @@ function addDragEvents(card) {
     });
 }
 
+// Below are some conversions for the data to be used properly with regards to dates
 function parseDateStr(dateStr) {
     const parts = dateStr.split('-');
     return new Date(parts[0], parts[1] - 1, parts[2]);
@@ -292,6 +300,7 @@ function minutesToTimeStr(minutes) {
     return `${displayHours}:${String(mins).padStart(2, "0")} ${ampm}`;
 }
 
+// Sets up an event listener and adds safeguards to ensure the user can't generate a schedule without missing data
 function setupGenerateButton() {
     document.getElementById("generateSchedule").addEventListener("click", async () => {
         const date = document.getElementById("taskDate").value;
@@ -378,6 +387,7 @@ function getDayName(dateStr) {
     return dayNames[dayIndex];
 }
 
+// Checks frequency of dates in order to ensure times are blocked off properly and nothing is scheduled in those time periods
 function isDateInRecurringCycle(checkDate, startDate, frequency) {
     const start = new Date(startDate);
     const check = new Date(checkDate);
@@ -395,7 +405,7 @@ function isDateInRecurringCycle(checkDate, startDate, frequency) {
         frequencyDays = 7;
     } else if (frequency === "bi-weekly") {
         frequencyDays = 14;
-    } else if (frequency === "triweekly") {
+    } else if (frequency === "tri-weekly") {
         frequencyDays = 21;
     } else {
         frequencyDays = 7;
@@ -426,6 +436,7 @@ function createBaseWindow() {
     ];
 }
 
+// Ensures that no tasks are scheduled in those specific time periods that are marked as unavailable
 function applyBlockedTime(windows, date) {
     const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
     let result = [...windows];
@@ -494,6 +505,7 @@ function cutWindow(windows, start, end) {
     return updated.sort((a, b) => a.start - b.start);
 }
 
+// Using the information about windows for when time is open and the optional start time, generates a schedule that places all the tasks down
 function generateSchedule(taskList, date) {
     const warnings = [];
     const scheduled = [];
@@ -525,12 +537,14 @@ function generateSchedule(taskList, date) {
             }
         }
 
+        // Ensures that tasks do not overlap with commitments or other tasks
         if (!placed) {
             warnings.push(`Task "${task.name}" at ${minutesToTimeStr(start)} conflicts with an unavailable time or another task. Moved to a flexible time.`);
             flexibleTasks.push(task); 
         }
     }
 
+    // Tasks that don't have a start time are sorted in terms of priority, such that higher priority ones are placed first
     const sortedFlexible = [...flexibleTasks].sort((a, b) => {
         const order = { high: 1, medium: 2, low: 3 };
         return order[a.priority] - order[b.priority];
