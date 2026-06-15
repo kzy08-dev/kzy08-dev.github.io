@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setupBlockedTimeModal();
 });
 
+// Adds listener for the mark time unavailable button and allows the modal to appear when clicked, giving functionality to elements
 function setupBlockedTimeModal() {
     const blockTimeBtn = document.getElementById("blockTime");
     const modalBackdrop = document.querySelector(".modalSchedule-backdrop");
@@ -51,6 +52,7 @@ function setupBlockedTimeModal() {
     });
 }
 
+// When modal is closed or submitted, reset all the options to default
 function resetBlockedTimeForm() {
     const form = document.getElementById("unavailabilitySchedule-Form");
     const specificSection = document.getElementById("specificDateSchedule-Section");
@@ -64,6 +66,7 @@ function resetBlockedTimeForm() {
     recurringSection.style.display = "none";
 }
 
+// Ensures users enter in correct inputs to allow the app to block off the right time (no contradictory times)
 async function handleBlockedTimeSubmit(e) {
     e.preventDefault();
 
@@ -103,6 +106,7 @@ async function handleBlockedTimeSubmit(e) {
         }
         blockRecord.date = date;
     } else if (type === "recurring") {
+        // Handles recurring times, asking the users for the frequency of events and when they start
         const startDate = document.getElementById("recurringStartDateSchedule-Input").value;
         if (!startDate) {
             alert("Please select a start date.");
@@ -163,7 +167,6 @@ function getDayNameFromDate(dateStr) {
     return dayNames[date.getDay()];
 }
 
-// Check if time slot is blocked for a specific date
 // Check if time slot is blocked for a specific date
 function isTimeBlockedForDate(date, startMinutes, endMinutes) {
     const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
@@ -229,7 +232,6 @@ function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
     return false;
 }
 
-// Check if a date falls within a recurring cycle starting from startDate
 // Check if a date falls within a recurring cycle starting from startDate
 function isDateInRecurringCycle(checkDate, startDate, frequency) {
     const start = new Date(startDate);
