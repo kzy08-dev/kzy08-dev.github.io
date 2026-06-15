@@ -188,14 +188,24 @@ window.togglePlay = function(index) {
         currentYouTubeIframe.style.height = "0";
         currentYouTubeIframe.style.border = "none";
         
+        // Convert watch URL to embed URL if needed
+        let embedUrl = song.source;
+        if (embedUrl.includes("youtube.com/watch?v=")) {
+            const videoId = new URL(embedUrl).searchParams.get("v");
+            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+        } else if (embedUrl.includes("youtu.be/")) {
+            const videoId = embedUrl.split("youtu.be/")[1];
+            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+        }
+        
         // Check if URL already has query parameters
-        const src = song.source.includes("?") 
-            ? song.source + "&autoplay=1&controls=0" 
-            : song.source + "?autoplay=1&controls=0";
+        const src = embedUrl.includes("?") 
+            ? embedUrl + "&autoplay=1&controls=0" 
+            : embedUrl + "?autoplay=1&controls=0";
         
         currentYouTubeIframe.src = src;
-        currentYouTubeIframe.allow = "autoplay";
-        currentYouTubeIframe.dataset.isPlaying = "true";
+        currentYouTubeIframe.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+        currentYouTubeIframe.sandbox.add("allow-scripts", "allow-same-origin", "allow-presentation", "allow-popups");
         
         document.body.appendChild(currentYouTubeIframe);
         currentPlayIndex = index;
