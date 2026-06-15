@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Task Deletion Modal Logic
 let taskToDelete = null;
 
+// Creates messages and buttons for user to be able to see if they wish to delete a task
 window.handleTaskDelete = function(btn, id) {
     try {
         const activeDateKey = document.getElementById("scheduleModal").dataset.dateKey;
@@ -79,6 +80,7 @@ window.handleTaskDelete = function(btn, id) {
     }
 };
 
+// Sets up listeners for the buttons used in the delete task modal
 document.getElementById("deleteBtnCancel")?.addEventListener("click", () => {
     document.getElementById("deletePromptModal").style.display = "none";
     taskToDelete = null;
@@ -96,12 +98,14 @@ document.getElementById("deleteBtnAll")?.addEventListener("click", () => {
     if (taskToDelete) executeTaskDelete(taskToDelete.dateKey, taskToDelete.id, true);
 });
 
+// Based on the date and id, gets the task saved in the database with schedules
 function getTaskById(dateKey, id) {
     const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
     const tasks = schedules[dateKey]?.tasks || [];
     return tasks.find(t => t.id === id);
 }
 
+// Based on what the user selects, the app will either delete that specific task, cancel the request, or delete all recurring tasks
 function executeTaskDelete(dateKey, id, deleteAll) {
     document.getElementById("deletePromptModal").style.display = "none";
     const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
@@ -153,6 +157,7 @@ function waitForComponents() {
     }, 50);
 }
 
+// Renders calendar display (all the cells for dates) and initializes event listeners for the buttons to switch between months
 function initializeCalendar() {
     renderCalendar();
     updateStatsDisplay();
@@ -328,6 +333,7 @@ function parseDateHeadingToKey(dateHeading) {
     return `${year}-${month}-${day}`;
 }
 
+// Checks to see the blocked time slots for a given day 
 function hasBlockedTimeOnDate(dateKey) {
     const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
     for (let block of blocked) {
@@ -344,6 +350,7 @@ function hasBlockedTimeOnDate(dateKey) {
     return false;
 }
 
+// Does some conversions to get the weekday
 function getDayNameFromDateKey(dateKey) {
     // Convert "2026-06-08" to day abbreviation (M, T, W, TH, F, SA, SU)
     const parts = dateKey.split('-');
@@ -353,6 +360,7 @@ function getDayNameFromDateKey(dateKey) {
     return dayNames[dayIndex];
 }
 
+// Used for the blocked time modal, in order to check recurring blocked time properly
 function isDateInRecurringCycle(checkDate, startDate, frequency) {
     const start = new Date(startDate);
     const check = new Date(checkDate);
@@ -370,7 +378,7 @@ function isDateInRecurringCycle(checkDate, startDate, frequency) {
         frequencyDays = 7;
     } else if (frequency === "bi-weekly") {
         frequencyDays = 14;
-    } else if (frequency === "triweekly") {
+    } else if (frequency === "tri-weekly") {
         frequencyDays = 21;
     } else {
         frequencyDays = 7;
@@ -473,6 +481,7 @@ function renderBlockedTimeSlot(timeIndex, dateKey, blockedSlots) {
         return ``;
     }
 
+    // Creates the remove for today, which allows the user to get rid of blocked time slots if their schedule frees up
     return `
         <div class="blocked-time-slot">
             <button class="remove-block-btn" data-date="${dateKey}" data-block-start="${coveringBlock.start}" data-block-end="${coveringBlock.end}" data-block-type="${coveringBlock.type}">
@@ -482,6 +491,7 @@ function renderBlockedTimeSlot(timeIndex, dateKey, blockedSlots) {
     `;
 }
 
+// Conversion into a nice readable format
 function minutesToTime(minutes) {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -490,6 +500,7 @@ function minutesToTime(minutes) {
     return `${displayHours}:${String(mins).padStart(2, "0")} ${ampm}`;
 }
 
+// Adds event listener for the remove for today button
 function attachBlockRemovalButtons() {
     document.querySelectorAll(".remove-block-btn").forEach(btn => {
         btn.addEventListener("click", async (e) => {
@@ -539,6 +550,7 @@ function attachBlockRemovalButtons() {
     });
 }
 
+// Logic for ensuring tasks are able to be filled in properly and don't overlap with each other
 function generateSlotMap(tasks) {
     const map = {};
     for (let task of tasks) {
@@ -558,6 +570,7 @@ function generateSlotMap(tasks) {
     return map;
 }
 
+// Generates the task card seen when you open up the schedule modal - complete with name, x, check, and play buttons
 function renderTaskBlock(task) {
     let baseStyles = '';
     if (task.color) {
@@ -585,12 +598,14 @@ function renderTaskBlock(task) {
     `;
 }
 
+// Formatting time using hours and minutes
 function formatTime(hour, min) {
     const h = hour % 12 || 12;
     const ampm = hour < 12 ? "AM" : "PM";
     return `${h}:${String(min).padStart(2, "0")} ${ampm}`;
 }
 
+// Used to convert the Youtube embed link to a usable format for iframes
 function buildYouTubeUrl(source) {
     // Check if URL already has query parameters
     if (source.includes("?")) {
@@ -600,7 +615,7 @@ function buildYouTubeUrl(source) {
     }
 }
 
-// NEW FUNCTION: Play from custom playlist
+// Play from custom playlist based on the task id given
 function playFromCustomPlaylist(taskId) {
     const playlist = getPlaylistFromStorage();
     
@@ -775,6 +790,7 @@ function attachTaskButtons() {
 }
 
 /* STATE MUTATORS */
+// Marks task as complete and saves this in local storage, so it can later be synced to Firebase
 function markTaskComplete(id) {
     const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
     for (let date in schedules) {
@@ -788,6 +804,7 @@ function markTaskComplete(id) {
     localStorage.setItem("fgSchedules", JSON.stringify(schedules));
 }
 
+// Determines the priority of a task given its idea by pulling it from local storage
 function getTaskPriority(id) {
     const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
     for (let date in schedules) {
@@ -801,6 +818,7 @@ function getTaskPriority(id) {
     return "medium";
 }
 
+// Determines whether the user chose the default or playlist option for their music for a task
 function getTaskMusicType(id) {
     const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
     for (let date in schedules) {
@@ -825,6 +843,7 @@ function getRewardByPriority(priority) {
     return rewardMap[priority.toLowerCase()] || 2;
 }
 
+// Shows the reward message when the user completes a task, complete with the appropriate increase in balance based on priority of task
 async function showRewardMessage(priority) {
     const amount = getRewardByPriority(priority);
     const toast = document.getElementById("rewardToast");
@@ -860,6 +879,7 @@ async function showRewardMessage(priority) {
     toast.classList.remove("show");
 }
 
+// Updates the virtual balance and the emotion meter to reflect pet's happiness (goes up as more tasks are completed)
 function updateStatsDisplay() {
     const balanceDisplay = document.getElementById("balanceDisplay");
     if (balanceDisplay) {
@@ -987,6 +1007,7 @@ function closeModal() {
     document.getElementById("scheduleModal").classList.add("hidden");
 }
 
+// Loads the different elemetns as necessary
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Select the necessary DOM elements
   const noteTakingBtn = document.getElementById('notetaking');
