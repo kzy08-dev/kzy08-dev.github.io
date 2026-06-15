@@ -17,9 +17,8 @@ import {
 
 // ==========================================
 // FIREBASE CONFIGURATION
-// Replace these settings with your own keys!
 // ==========================================
-// Your web app's Firebase configuration
+// Firebase configuration (note that this api key is okay to have public due to the nature of how Firebase works)
 const firebaseConfig = {
   apiKey: "AIzaSyCgkcXDiAtly8AgZQE3R9oKabxUa2034Tk",
   authDomain: "feral-gremlin-app.firebaseapp.com",
@@ -89,7 +88,7 @@ window.firebaseHelper = {
             return { success: false, error: error.message };
         }
     },
-    
+
     async login(email, password) {
         if (!isConfigured) return this.localLogin(email);
         
@@ -178,6 +177,7 @@ window.firebaseHelper = {
         }
     },
 
+    // Syncing the data from Firebase to local storage so the app can easily access it
     async syncFirebaseToLocal(uid) {
         if (!isConfigured) return;
         try {
