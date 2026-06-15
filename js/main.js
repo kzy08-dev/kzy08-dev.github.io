@@ -30,6 +30,7 @@ async function loadComponent(containerId, filePath) {
 }
 
 /* SIDEBAR */
+// Since the sidebar is a separate component and on every page, every webpage loads in the sidebar separately using this function
 function initializeSidebar() {
     const hamburger = document.getElementById("hamburger");
     const sidebar = document.getElementById("sidebar");
@@ -48,6 +49,7 @@ function initializeSidebar() {
     updateSidebarPet();
 }
 
+// The pet within the sidebar is changed accordingly based on the emotion level
 window.updateSidebarPet = function() {
     const petImg = document.getElementById("sidebar-pet-img");
     if (petImg) {
@@ -96,7 +98,6 @@ function setupAuthListener() {
             initializeUsername(user);
             initializeLogout();
             updateSidebarPet();
-            
             checkOverdueTasks();
             
             // Dispatch a global event indicating that user data is loaded and ready
@@ -105,12 +106,14 @@ function setupAuthListener() {
     });
 }
 
+// Updates the emotion of the pet based on task completion (lowers it if more tasks are incomplete)
 function checkOverdueTasks() {
     if (window.updateEmotionFromCurrentWeek) {
         window.updateEmotionFromCurrentWeek();
     }
 }
 
+// Checks the tasks throughout the current week based on the schedules that are saved in the database to determine emotional change
 window.updateEmotionFromCurrentWeek = function() {
     const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
     let baseEmotion = 50;
