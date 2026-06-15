@@ -2211,6 +2211,20 @@ tr:hover td {
     .auth-card {
         padding: 25px 20px;
     }
+
+    .priority-layout {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .priority-box {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .task-page {
+        padding: 0 20px;
+    }
 }
 
 .coin-icon {
