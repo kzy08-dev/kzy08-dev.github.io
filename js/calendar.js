@@ -591,6 +591,102 @@ function formatTime(hour, min) {
     return `${h}:${String(min).padStart(2, "0")} ${ampm}`;
 }
 
+function buildYouTubeUrl(source) {
+    // Check if URL already has query parameters
+    if (source.includes("?")) {
+        return source + "&autoplay=1&controls=0";
+    } else {
+        return source + "?autoplay=1&controls=0";
+    }
+}
+
+// NEW FUNCTION: Play from custom playlist
+function playFromCustomPlaylist(taskId) {
+    const playlist = getPlaylistFromStorage();
+    
+    if (!playlist || playlist.length === 0) {
+        alert("No songs in your custom playlist. Add some in the Music page first!");
+        return;
+    }
+    
+    // Select a song from playlist using variety (not always the same song)
+    const songIndex = taskId % playlist.length;
+    const selectedSong = playlist[songIndex];
+    
+    // 1. If clicking the SAME button that is already active -> Toggle Play/Pause
+    if (currentPlayingId === taskId) {
+        if (selectedSong.type === "youtube") {
+            if (currentYouTubeIframe && currentYouTubePlayingId === taskId) {
+                const isPlaying = currentYouTubeIframe.dataset.isPlaying === "true";
+                if (isPlaying) {
+                    currentYouTubeIframe.src = "";
+                    currentYouTubeIframe.dataset.isPlaying = "false";
+                } else {
+                    const src = buildYouTubeUrl(selectedSong.source);
+                    currentYouTubeIframe.src = src;
+                    currentYouTubeIframe.dataset.isPlaying = "true";
+                }
+                return;
+            }
+        } else if (currentAudio) {
+            if (currentAudio.paused) {
+                currentAudio.play();
+            } else {
+                currentAudio.pause();
+            }
+            return;
+        }
+    }
+    
+    // 2. Stop any currently playing audio/video
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+    if (currentYouTubeIframe) {
+        currentYouTubeIframe.remove();
+        currentYouTubeIframe = null;
+    }
+    
+    // 3. Play the selected song
+    if (selectedSong.type === "youtube") {
+        // Create hidden iframe for YouTube playback
+        currentYouTubeIframe = document.createElement("iframe");
+        currentYouTubeIframe.style.width = "0";
+        currentYouTubeIframe.style.height = "0";
+        currentYouTubeIframe.style.border = "none";
+            
+        const src = buildYouTubeUrl(selectedSong.source);
+        currentYouTubeIframe.src = src;
+        currentYouTubeIframe.allow = "autoplay";
+        currentYouTubeIframe.dataset.isPlaying = "true";
+            
+        document.body.appendChild(currentYouTubeIframe);
+        currentPlayingId = taskId;
+        currentYouTubePlayingId = taskId;
+    } else if (selectedSong.type === "audio") {
+        // Play audio file
+        try {
+            currentAudio = new Audio(selectedSong.source);
+            currentPlayingId = taskId;
+    
+            currentAudio.addEventListener("ended", () => {
+                currentAudio = null;
+                currentPlayingId = null;
+            });
+    
+            currentAudio.play();
+        } catch (e) {
+            alert("Unable to play this audio file. Please ensure it is a valid format.");
+        }
+    }
+}
+    
+// HELPER FUNCTION: Get playlist from localStorage
+function getPlaylistFromStorage() {
+    return JSON.parse(localStorage.getItem("feralGremlinPlaylist")) || [];
+}
+
 /* INTERACTIVE BUTTON HANDLERS */
 function attachTaskButtons() {
     document.querySelectorAll(".complete-btn").forEach(btn => {
@@ -676,104 +772,6 @@ function attachTaskButtons() {
             });
         });
     });
-
-    
-    // NEW FUNCTION: Play from custom playlist
-    function playFromCustomPlaylist(taskId) {
-        const playlist = getPlaylistFromStorage();
-    
-        if (!playlist || playlist.length === 0) {
-            alert("No songs in your custom playlist. Add some in the Music page first!");
-            return;
-        }
-    
-        // Select a song from playlist using variety (not always the same song)
-        const songIndex = taskId % playlist.length;
-        const selectedSong = playlist[songIndex];
-    
-        // 1. If clicking the SAME button that is already active -> Toggle Play/Pause
-        if (currentPlayingId === taskId) {
-            if (selectedSong.type === "youtube") {
-                if (currentYouTubeIframe && currentYouTubePlayingId === taskId) {
-                    const isPlaying = currentYouTubeIframe.dataset.isPlaying === "true";
-                    if (isPlaying) {
-                        currentYouTubeIframe.src = "";
-                        currentYouTubeIframe.dataset.isPlaying = "false";
-                    } else {
-                        const src = buildYouTubeUrl(selectedSong.source);
-                        currentYouTubeIframe.src = src;
-                        currentYouTubeIframe.dataset.isPlaying = "true";
-                    }
-                    return;
-                }
-            } else if (currentAudio) {
-                if (currentAudio.paused) {
-                    currentAudio.play();
-                } else {
-                    currentAudio.pause();
-                }
-                return;
-            }
-        }
-    
-        // 2. Stop any currently playing audio/video
-        if (currentAudio) {
-            currentAudio.pause();
-            currentAudio = null;
-        }
-        if (currentYouTubeIframe) {
-            currentYouTubeIframe.remove();
-            currentYouTubeIframe = null;
-        }
-    
-        // 3. Play the selected song
-        if (selectedSong.type === "youtube") {
-            // Create hidden iframe for YouTube playback
-            currentYouTubeIframe = document.createElement("iframe");
-            currentYouTubeIframe.style.width = "0";
-            currentYouTubeIframe.style.height = "0";
-            currentYouTubeIframe.style.border = "none";
-            
-            const src = buildYouTubeUrl(selectedSong.source);
-            currentYouTubeIframe.src = src;
-            currentYouTubeIframe.allow = "autoplay";
-            currentYouTubeIframe.dataset.isPlaying = "true";
-            
-            document.body.appendChild(currentYouTubeIframe);
-            currentPlayingId = taskId;
-            currentYouTubePlayingId = taskId;
-        } else if (selectedSong.type === "audio") {
-            // Play audio file
-            try {
-                currentAudio = new Audio(selectedSong.source);
-                currentPlayingId = taskId;
-    
-                currentAudio.addEventListener("ended", () => {
-                    currentAudio = null;
-                    currentPlayingId = null;
-                });
-    
-                currentAudio.play();
-            } catch (e) {
-                alert("Unable to play this audio file. Please ensure it is a valid format.");
-            }
-        }
-    }
-    
-    // HELPER FUNCTION: Get playlist from localStorage
-    function getPlaylistFromStorage() {
-        return JSON.parse(localStorage.getItem("feralGremlinPlaylist")) || [];
-    }
-    
-    // HELPER FUNCTION: Build YouTube URL with proper query parameters
-    function buildYouTubeUrl(source) {
-        // Check if URL already has query parameters
-        if (source.includes("?")) {
-            return source + "&autoplay=1&controls=0";
-        } else {
-            return source + "?autoplay=1&controls=0";
-        }
-    }
 }
 
 /* STATE MUTATORS */
