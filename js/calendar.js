@@ -281,43 +281,90 @@ function buildScheduleTable(tasks) {
         return;
     }
 
-    const slotMap = generateSlotMap(tasks);
     const blockedTimeSlots = getBlockedSlotsForDate(dateKey);
 
-    for (let hour = 7; hour < 23; hour++) { // Show hours from 7 AM to 11 PM
-        for (let min = 0; min < 60; min += 30) {
-            const timeIndex = hour * 60 + min;
-            const slotTasks = slotMap[timeIndex] || [];
-            const isBlocked = isTimeSlotBlocked(timeIndex, blockedTimeSlots);
+    let events = [];
 
-            // Display row if there are tasks OR if time is blocked
-            if (slotTasks.length > 0 || isBlocked) {
-                const row = document.createElement("tr");
-                const timeCell = document.createElement("td");
-                const taskCell = document.createElement("td");
+    // Add tasks
+    tasks.forEach(task => {
+        events.push({
+            start: task.start,
+            type: 'task',
+            data: task
+        });
+    });
 
-                timeCell.textContent = formatTime(hour, min);
-                timeCell.style.width = "90px";
-                timeCell.style.fontWeight = "600";
-                timeCell.style.color = "var(--primary-main)";
+    // Add blocked slots
+    blockedTimeSlots.forEach(block => {
+        // Find if this specific block is exempted
+        const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
+        const isExempt = blocked.some(b => 
+            b.type === "exemption" &&
+            b.date === dateKey &&
+            b.originalBlockStart === block.start &&
+            b.originalBlockEnd === block.end
+        );
 
-                if (isBlocked && slotTasks.length === 0) {
-                    // Display blocked time slot
-                    row.classList.add("blocked-time-row");
-                    taskCell.innerHTML = renderBlockedTimeSlot(timeIndex, dateKey, blockedTimeSlots);
-                } else if (isBlocked && slotTasks.length > 0) {
-                    // Tasks during blocked time (shouldn't happen but handle it)
-                    taskCell.innerHTML = slotTasks.map(renderTaskBlock).join("");
-                } else {
-                    // Normal task display
-                    taskCell.innerHTML = slotTasks.map(renderTaskBlock).join("");
-                }
-
-                row.append(timeCell, taskCell);
-                body.appendChild(row);
-            }
+        if (!isExempt) {
+            events.push({
+                start: block.start,
+                type: 'blocked',
+                data: block
+            });
         }
-    }
+    });
+
+    // Group events that occur at the exact same start minute
+    const groupedEvents = {};
+    events.forEach(event => {
+        if (!groupedEvents[event.start]) {
+            groupedEvents[event.start] = { tasks: [], blocked: null };
+        }
+        if (event.type === 'task') {
+            groupedEvents[event.start].tasks.push(event.data);
+        } else if (event.type === 'blocked') {
+            groupedEvents[event.start].blocked = event.data;
+        }
+    });
+
+    const sortedTimes = Object.keys(groupedEvents).map(Number).sort((a, b) => a - b);
+
+    // Render each group
+    sortedTimes.forEach(timeIndex => {
+        const group = groupedEvents[timeIndex];
+        
+        const row = document.createElement("tr");
+        const timeCell = document.createElement("td");
+        const taskCell = document.createElement("td");
+
+        const hour = Math.floor(timeIndex / 60);
+        const min = timeIndex % 60;
+        timeCell.textContent = formatTime(hour, min);
+        timeCell.style.width = "90px";
+        timeCell.style.fontWeight = "600";
+        timeCell.style.color = "var(--primary-main)";
+
+        let contentHtml = "";
+
+        if (group.blocked) {
+            row.classList.add("blocked-time-row");
+            contentHtml += `
+                <div class="blocked-time-slot">
+                    <button class="remove-block-btn" data-date="${dateKey}" data-block-start="${group.blocked.start}" data-block-end="${group.blocked.end}" data-block-type="${group.blocked.type}">
+                        Remove For Today
+                    </button>
+                </div>
+            `;
+        }
+
+        if (group.tasks.length > 0) {
+            contentHtml += group.tasks.map(renderTaskBlock).join("");
+        }
+
+        taskCell.innerHTML = contentHtml;
+        row.append(timeCell, taskCell);
+        body.appendChild(row);
+    });
 
     attachTaskButtons();
     attachBlockRemovalButtons();
@@ -1007,72 +1054,6 @@ function closeModal() {
     document.getElementById("scheduleModal").classList.add("hidden");
 }
 
-// Loads the different elemetns as necessary
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Select the necessary DOM elements
-  const noteTakingBtn = document.getElementById('notetaking');
-  const modalOverlay = document.querySelector('.modalNotes-overlay');
-  const modalContainer = document.querySelector('.modalNotes-container');
-  const textarea = document.querySelector('.modalNotes-input');
-  const cancelBtn = document.querySelector('.modalNotes-cancel');
-  const finishBtn = document.querySelector('.modalNotes-finish');
-
-  // Key updated to use 'fgNotes' directly for raw text storage
-  const STORAGE_KEY = 'fgNotes';
-
-  // 2. Function to open the notes modal
-  function openNotesModal() {
-    // Load existing raw text notes from localStorage if they exist
-    const savedNotes = localStorage.getItem(STORAGE_KEY);
-    
-    if (savedNotes) {
-      textarea.value = savedNotes;
-    } else {
-      textarea.value = ''; // Clear if no saved data exists
-    }
-
-    // Display the modal using flex layout
-    modalOverlay.style.display = 'flex';
-    modalContainer.style.display = 'flex';
-  }
-
-  // 3. Function to close the notes modal without saving
-  function closeNotesModal() {
-    modalOverlay.style.display = 'none';
-    modalContainer.style.display = 'none';
-  }
-
-  // 4. Made async to handle the Firebase sync await rule
-  async function saveAndCloseNotesModal() {
-    // Save the raw textarea string directly to match Firebase expectations
-    localStorage.setItem(STORAGE_KEY, textarea.value);
-    
-    // Close the modal using the renamed function
-    closeNotesModal();
-
-    // Firebase Sync snippet injected at the end of the function
-    if (window.firebaseHelper) {
-        await window.firebaseHelper.syncLocalToFirebase();
-    }
-  }
-
-  // 5. Event Listeners utilizing the function names
-  if (noteTakingBtn) {
-    noteTakingBtn.addEventListener('click', openNotesModal);
-  } else {
-    console.warn("Element with ID 'notetaking' was not found on the page.");
-  }
-
-  cancelBtn.addEventListener('click', closeNotesModal);
-  finishBtn.addEventListener('click', saveAndCloseNotesModal);
-
-  // Close modal if user clicks on the background overlay itself
-  modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) {
-      closeNotesModal();
-    }
-  });
-});
 
 // Close Mark Time Unavailable modal
 const scheduleBackdrop = document.querySelector(".modalSchedule-backdrop");

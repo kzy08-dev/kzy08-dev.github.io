@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initializeSidebar();
     initializeActiveNav();
     waitForFirebaseAndCheckAuth();
+    initializeNotes();
 });
 
 
@@ -299,5 +300,48 @@ function scheduleTodayNotifications() {
                 window.scheduledNotificationIds.delete(task.id); // clear when done
             }, timeUntilTaskMs);
         }
+    });
+}
+
+/* NOTES (GLOBAL) */
+function initializeNotes() {
+    const noteTakingBtn = document.getElementById('notetaking');
+    const modalOverlay = document.querySelector('.modalNotes-overlay');
+    const modalContainer = document.querySelector('.modalNotes-container');
+    const textarea = document.querySelector('.modalNotes-input');
+    const cancelBtn = document.querySelector('.modalNotes-cancel');
+    const finishBtn = document.querySelector('.modalNotes-finish');
+
+    if (!modalOverlay || !noteTakingBtn) return;
+
+    const STORAGE_KEY = 'fgNotes';
+
+    function openNotesModal(e) {
+        if(e) e.preventDefault();
+        const savedNotes = localStorage.getItem(STORAGE_KEY);
+        textarea.value = savedNotes ? savedNotes : '';
+        modalOverlay.style.display = 'flex';
+        modalContainer.style.display = 'flex';
+    }
+
+    function closeNotesModal() {
+        modalOverlay.style.display = 'none';
+        modalContainer.style.display = 'none';
+    }
+
+    async function saveAndCloseNotesModal() {
+        localStorage.setItem(STORAGE_KEY, textarea.value);
+        closeNotesModal();
+        if (window.firebaseHelper) {
+            await window.firebaseHelper.syncLocalToFirebase();
+        }
+    }
+
+    noteTakingBtn.addEventListener('click', openNotesModal);
+    cancelBtn.addEventListener('click', closeNotesModal);
+    finishBtn.addEventListener('click', saveAndCloseNotesModal);
+
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeNotesModal();
     });
 }

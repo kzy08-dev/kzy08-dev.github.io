@@ -131,6 +131,16 @@
                 const password = document.getElementById("authPassword").value;
                 const username = document.getElementById("regUsername").value.trim();
                 
+                // Ask for notification permission before starting the login network request!
+                // If we do this after 'await login', Chrome drops the 'user gesture' and ignores the prompt.
+                if ("Notification" in window && Notification.permission === "default") {
+                    try {
+                        await Notification.requestPermission();
+                    } catch (e) {
+                        console.error("Notification error:", e);
+                    }
+                }
+                
                 let result;
                 if (isRegisterMode) {
                     result = await window.firebaseHelper.signUp(email, password, username);
@@ -139,14 +149,6 @@
                 }
                 
                 if (result.success) {
-                    // Ask for notification permission before redirecting to the main app
-                    if ("Notification" in window && Notification.permission === "default") {
-                        try {
-                            await Notification.requestPermission();
-                        } catch (e) {
-                            console.error("Notification error:", e);
-                        }
-                    }
                     // Redirect to home/calendar
                     window.location.href = "./index.html";
                 } else {

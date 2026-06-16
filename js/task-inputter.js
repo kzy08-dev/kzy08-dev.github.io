@@ -429,10 +429,10 @@ function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
     return false;
 }
 
-/* Base schedule window: 7 AM (420 min) to 11 PM (1380 min) */
+/* Base schedule window: 12:00 AM (0 min) to 11:59 PM (1440 min) */
 function createBaseWindow() {
     return [
-        { start: 420, end: 1380 }
+        { start: 0, end: 1440 }
     ];
 }
 
