@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     waitForFirebaseAndCheckAuth();
 });
 
+
+
 /* LOAD HTML */
 async function loadComponent(containerId, filePath) {
     try {
@@ -99,6 +101,7 @@ function setupAuthListener() {
             initializeLogout();
             updateSidebarPet();
             checkOverdueTasks();
+            scheduleTodayNotifications();
             
             // Dispatch a global event indicating that user data is loaded and ready
             window.dispatchEvent(new CustomEvent("fg-data-synced", { detail: user }));
@@ -238,6 +241,63 @@ function initializeActiveNav() {
 
         if (href === currentPage || (currentPage === "index.html" && href === "")) {
             link.classList.add("active");
+        }
+    });
+}
+
+/* NOTIFICATIONS */
+function requestNotificationPermission() {
+    if (!("Notification" in window)) return;
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission();
+    }
+}
+
+window.scheduledNotificationIds = window.scheduledNotificationIds || new Set();
+
+function scheduleTodayNotifications() {
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+        return;
+    }
+
+    const schedules = JSON.parse(localStorage.getItem("fgSchedules")) || {};
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const currentDayStr = String(now.getDate()).padStart(2, '0');
+    const currentDateKey = `${currentYear}-${currentMonth}-${currentDayStr}`;
+
+    const todaySchedule = schedules[currentDateKey];
+    if (!todaySchedule || !todaySchedule.tasks) return;
+
+    todaySchedule.tasks.forEach(task => {
+        if (task.completed) return; 
+        
+        // Skip if already scheduled in this session
+        if (window.scheduledNotificationIds.has(task.id)) return;
+
+        const taskStartMinutes = task.start;
+        const taskTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Math.floor(taskStartMinutes / 60), taskStartMinutes % 60, 0);
+
+        const timeUntilTaskMs = taskTime.getTime() - Date.now();
+
+        if (timeUntilTaskMs > 0 && timeUntilTaskMs < 86400000) {
+            window.scheduledNotificationIds.add(task.id);
+            console.log(`Scheduling notification for "${task.name}" in ${Math.round(timeUntilTaskMs/60000)} minutes.`);
+            
+            setTimeout(() => {
+                if (Notification.permission === "granted") {
+                    const notification = new Notification("Task Reminder: " + task.name, {
+                        body: `It's time for your task (${task.duration} min)!`,
+                    });
+                    
+                    notification.onclick = function() {
+                        window.focus();
+                        this.close();
+                    };
+                }
+                window.scheduledNotificationIds.delete(task.id); // clear when done
+            }, timeUntilTaskMs);
         }
     });
 }

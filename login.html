@@ -139,6 +139,14 @@
                 }
                 
                 if (result.success) {
+                    // Ask for notification permission before redirecting to the main app
+                    if ("Notification" in window && Notification.permission === "default") {
+                        try {
+                            await Notification.requestPermission();
+                        } catch (e) {
+                            console.error("Notification error:", e);
+                        }
+                    }
                     // Redirect to home/calendar
                     window.location.href = "./index.html";
                 } else {
