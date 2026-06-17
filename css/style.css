@@ -2150,7 +2150,7 @@ tr:hover td {
         padding: 10px 12px;
     }
 
-    nav-link {
+    .nav-link {
         flex: 1;
         max-width: 75px;
         padding: 6px 8px;
