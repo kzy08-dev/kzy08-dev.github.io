@@ -196,7 +196,7 @@ function isTimeBlockedForDate(date, startMinutes, endMinutes) {
             
             if (block.days.includes(dayCode)) {
                 // Check if date falls on the correct frequency cycle
-                if (isDateInRecurringCycle(date, block.startDate, block.frequency)) {
+                if (isDateInRecurringCycle(date, block.startDate, block.frequency, block.days)) {
                     // Check for time overlap
                     if (!(endMinutes <= block.start || startMinutes >= block.end)) {
                         return true;
@@ -233,7 +233,8 @@ function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
 }
 
 // Check if a date falls within a recurring cycle starting from startDate
-function isDateInRecurringCycle(checkDate, startDate, frequency) {
+// AND matches one of the selected days
+function isDateInRecurringCycle(checkDate, startDate, frequency, selectedDays) {
     const start = new Date(startDate);
     const check = new Date(checkDate);
     
@@ -258,8 +259,24 @@ function isDateInRecurringCycle(checkDate, startDate, frequency) {
         frequencyDays = 7; // Default to weekly
     }
     
-    // Check if the difference is divisible by the frequency interval
-    return diffDays % frequencyDays === 0;
+    // Check if the difference is within a frequency cycle
+    const cyclePosition = diffDays % frequencyDays;
+    
+    // Get the day of week for the check date
+    const dayName = getDayNameFromDate(check.toISOString().split('T')[0]);
+    const shortDayMap = {
+        "sun": "SU",
+        "mon": "M",
+        "tue": "T",
+        "wed": "W",
+        "thu": "TH",
+        "fri": "F",
+        "sat": "SA"
+    };
+    const dayCode = shortDayMap[dayName];
+    
+    // Check if this day is in the selected days AND within a valid cycle
+    return cyclePosition < 7 && selectedDays.includes(dayCode);
 }
 
 // Generate all occurrences of a recurring block up to a specified date range
