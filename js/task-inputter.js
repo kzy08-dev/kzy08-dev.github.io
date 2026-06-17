@@ -386,33 +386,6 @@ function getDayName(dateStr) {
     const dayNames = ["SU", "M", "T", "W", "TH", "F", "SA"];
     return dayNames[dayIndex];
 }
-
-// Checks frequency of dates in order to ensure times are blocked off properly and nothing is scheduled in those time periods
-function isDateInRecurringCycle(checkDate, startDate, frequency) {
-    const start = new Date(startDate);
-    const check = new Date(checkDate);
-    
-    start.setHours(0, 0, 0, 0);
-    check.setHours(0, 0, 0, 0);
-    
-    const diffMs = check - start;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return false;
-    
-    let frequencyDays;
-    if (frequency === "weekly") {
-        frequencyDays = 7;
-    } else if (frequency === "bi-weekly") {
-        frequencyDays = 14;
-    } else if (frequency === "tri-weekly") {
-        frequencyDays = 21;
-    } else {
-        frequencyDays = 7;
-    }
-    
-    return diffDays % frequencyDays === 0;
-}
         
 function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
     const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
