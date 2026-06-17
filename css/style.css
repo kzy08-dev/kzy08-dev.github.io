@@ -2146,29 +2146,29 @@ tr:hover td {
         display: none;
     }
 
-    .sidebar-nav {
-        flex-direction: row;
-        padding: 10px 12px;
-        gap: 6px;
-        flex: 1;
-        justify-content: flex-start;
-    }
-
     .sidebar.collapsed .sidebar-nav {
         padding: 10px 12px;
     }
 
-    .nav-link {
+    nav-link {
         flex: 1;
-        max-width: 90px;
-        padding: 8px 10px;
+        max-width: 75px;
+        padding: 6px 8px;
         justify-content: center;
-        gap: 4px;
-        font-size: 12px;
+        gap: 2px;
+        font-size: 11px;
     }
 
     .nav-link .icon {
-        font-size: 18px;
+        font-size: 16px;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        padding: 8px 10px;
+        gap: 4px;
+        flex: 1;
+        justify-content: flex-start;
     }
 
     .sidebar.collapsed .nav-link {
