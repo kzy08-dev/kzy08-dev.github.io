@@ -233,6 +233,7 @@ function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
 }
 
 // Check if a date falls within a recurring cycle starting from startDate
+// Check if a date falls within a recurring cycle starting from startDate
 function isDateInRecurringCycle(checkDate, startDate, frequency, selectedDays = null) {
     const start = new Date(startDate);
     const check = new Date(checkDate);
@@ -259,18 +260,16 @@ function isDateInRecurringCycle(checkDate, startDate, frequency, selectedDays = 
     }
     
     // Determine which cycle period this date falls into
-    const cycleNumber = Math.floor(diffDays / frequencyDays);
-    const cycleStartDate = new Date(start);
-    cycleStartDate.setDate(cycleStartDate.getDate() + (cycleNumber * frequencyDays));
+    const cycleNumber = Math.floor(diffDays / 7); // Always count by weeks
+    const cyclesPerFrequency = frequencyDays / 7; // How many weeks per frequency (1 for weekly, 2 for bi-weekly, 3 for tri-weekly)
     
-    // Calculate cycle end date
-    const cycleEndDate = new Date(cycleStartDate);
-    cycleEndDate.setDate(cycleEndDate.getDate() + frequencyDays);
-    
-    // Check if date is within the current cycle
-    const isInCycle = check >= cycleStartDate && check < cycleEndDate;
-    
-    if (!isInCycle) return false;
+    // Check if this cycle number is active for this frequency
+    // For weekly: all cycles (0, 1, 2, 3, ...) are active
+    // For bi-weekly: only cycles 0, 2, 4, 6, ... are active
+    // For tri-weekly: only cycles 0, 3, 6, 9, ... are active
+    if (cycleNumber % cyclesPerFrequency !== 0) {
+        return false;
+    }
     
     // If selectedDays is provided, also check if the day of week matches
     if (selectedDays !== null && selectedDays !== undefined) {
