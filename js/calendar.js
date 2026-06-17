@@ -407,33 +407,6 @@ function getDayNameFromDateKey(dateKey) {
     return dayNames[dayIndex];
 }
 
-// Used for the blocked time modal, in order to check recurring blocked time properly
-function isDateInRecurringCycle(checkDate, startDate, frequency) {
-    const start = new Date(startDate);
-    const check = new Date(checkDate);
-    
-    start.setHours(0, 0, 0, 0);
-    check.setHours(0, 0, 0, 0);
-    
-    const diffMs = check - start;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return false;
-    
-    let frequencyDays;
-    if (frequency === "weekly") {
-        frequencyDays = 7;
-    } else if (frequency === "bi-weekly") {
-        frequencyDays = 14;
-    } else if (frequency === "tri-weekly") {
-        frequencyDays = 21;
-    } else {
-        frequencyDays = 7;
-    }
-    
-    return diffDays % frequencyDays === 0;
-}
-
 function getBlockedSlotsForDate(dateKey) {
     // Returns array of all blocked time blocks for this specific date
     const blocked = JSON.parse(localStorage.getItem("fgBlockedTime")) || [];
