@@ -233,8 +233,7 @@ function isBlockExempt(dateKey, blockStart, blockEnd, blockType) {
 }
 
 // Check if a date falls within a recurring cycle starting from startDate
-// AND matches one of the selected days
-function isDateInRecurringCycle(checkDate, startDate, frequency, selectedDays) {
+function isDateInRecurringCycle(checkDate, startDate, frequency, selectedDays = null) {
     const start = new Date(startDate);
     const check = new Date(checkDate);
     
@@ -259,24 +258,38 @@ function isDateInRecurringCycle(checkDate, startDate, frequency, selectedDays) {
         frequencyDays = 7; // Default to weekly
     }
     
-    // Check if the difference is within a frequency cycle
-    const cyclePosition = diffDays % frequencyDays;
+    // Determine which cycle period this date falls into
+    const cycleNumber = Math.floor(diffDays / frequencyDays);
+    const cycleStartDate = new Date(start);
+    cycleStartDate.setDate(cycleStartDate.getDate() + (cycleNumber * frequencyDays));
     
-    // Get the day of week for the check date
-    const dayName = getDayNameFromDate(check.toISOString().split('T')[0]);
-    const shortDayMap = {
-        "sun": "SU",
-        "mon": "M",
-        "tue": "T",
-        "wed": "W",
-        "thu": "TH",
-        "fri": "F",
-        "sat": "SA"
-    };
-    const dayCode = shortDayMap[dayName];
+    // Calculate cycle end date
+    const cycleEndDate = new Date(cycleStartDate);
+    cycleEndDate.setDate(cycleEndDate.getDate() + frequencyDays);
     
-    // Check if this day is in the selected days AND within a valid cycle
-    return cyclePosition < 7 && selectedDays.includes(dayCode);
+    // Check if date is within the current cycle
+    const isInCycle = check >= cycleStartDate && check < cycleEndDate;
+    
+    if (!isInCycle) return false;
+    
+    // If selectedDays is provided, also check if the day of week matches
+    if (selectedDays !== null && selectedDays !== undefined) {
+        const dayName = getDayNameFromDate(check.toISOString().split('T')[0]);
+        const shortDayMap = {
+            "sun": "SU",
+            "mon": "M",
+            "tue": "T",
+            "wed": "W",
+            "thu": "TH",
+            "fri": "F",
+            "sat": "SA"
+        };
+        const dayCode = shortDayMap[dayName];
+        return selectedDays.includes(dayCode);
+    }
+    
+    // Legacy behavior: if no selectedDays provided, just check cycle (for task-inputter.js compatibility)
+    return true;
 }
 
 // Generate all occurrences of a recurring block up to a specified date range
