@@ -289,7 +289,7 @@ function scheduleTodayNotifications() {
             setTimeout(() => {
                 if (Notification.permission === "granted") {
                     const notification = new Notification("Task Reminder: " + task.name, {
-                        body: `It's time for your task (${task.duration} min)!`,
+                        body: `Your pet is waiting for you to get started! It'll take (${task.duration} minutes!)`,
                     });
                     
                     notification.onclick = function() {
